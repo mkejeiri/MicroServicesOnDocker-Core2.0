@@ -1,0 +1,146 @@
+https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-2017&pivots=cs1-bash
+docker pull microsoft/mssql-server-linux
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=!5F&svw1234' -e 'MSSQL_PID=Express' -p 1490:1433 --name=catalogdb microsoft/mssql-server-linux:latest
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=!5F&svw1234' -e 'MSSQL_PID=Express' -p 1490:1433 --name catalogdb  mcr.microsoft.com/mssql/server:2017-latest
+#list active container 
+docker ps -a
+#remove all images
+docker rm $(docker ps -a -f status=exited -f status=created -q)
+#connect with sql mgnt at localhost,1490  + credentials above
+sqlcmd -S localhost,1490 -U SA -P '!5F&svw1234'
+select name from sys.databases
+go
+#it: interactive command
+docker exec -it catalogdb /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P '!5F&svw1234' -Q 'SELECT @@VERSION'
+# Microsoft.EntityFrameworkCore.Tools -Version 2.2.4, Enables these commonly used commands:
+Add-Migration
+Drop-Database
+Get-DbContext
+Scaffold-DbContext
+Script-Migrations
+Update-Database
+
+#first migrations 
+ dotnet ef migrations add  intialmigrations -o .\Data\Migrations -c ProductCatalogApi.Data.CatalogDbContext
+ dotnet ef migrations remove
+ #apply migration to the db
+ dotnet ef database update intialmigrations  -c ProductCatalogApi.Data.CatalogDbContext
+
+ #Why not putting the seeder inside the configure method in the startup class for dockerized system?
+ The configure method in the startup class is devoted to operate in the middleware pipeline! (aka components chain),
+ unlike in non dockerized system where we could call the seeder inside configure method, and due the problem encountered by Core,
+ the database might not ready in dockerized systems, for that reason Core 2.0 + recommends to inject directly
+ the db context for seeding in the program class (main methods).
+
+#configure Swagger : https://github.com/domaindrivendev/Swashbuckle.AspNetCore/blob/master/README-v5.md
+#Docker file a recipe for docker image : https://hub.docker.com/r/microsoft/aspnetcore/
+docker pull microsoft/aspnetcore:latest
+docker pull microsoft/aspnetcore-build:latest
+Dockerfile =>
+				#build is an alias for the downloaded image
+				FROM microsoft/aspnetcore-build:latest as build
+				#if code folder doesn't docker will create it
+				WORKDIR /code
+				#copy project file from my current local p (host) WORKDIR to the current docker container (image)
+				COPY . .
+				#one all files are copies to the docker container (image), we call restore
+				RUN dotnet restore
+
+				#We publish, configuration Release, i.e a release build, this images will have source files + the build
+				#it could easily reach 2GB, the best plan is to have runtime+dll's (a smaller runnable image version of our app) (**)
+				RUN dotnet publish --output /out/ --configuration Release
+
+				####  to solve the issue (**) we use the docker multistage build
+				#use the smaller image (runtime)
+				FROM microsoft/aspnetcore:latest
+				#copy the only the built artifacts from the previous stages (out folder) to the downloaded runtime container inside folder app
+				COPY --from=build /out /app/
+				WORKDIR /app
+				#this is the entry point for the app to run, dotnet runtime + dll
+				ENTRYPOINT ["dotnet", "ProductCatalogApi.dll"]
+
+				##this is an autogen sample
+				#FROM microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
+				#WORKDIR /code
+				#EXPOSE 80
+				#EXPOSE 443
+				#
+				#FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+				#WORKDIR /src
+				#COPY ["src/Services/ProductCatalogApi/ProductCatalogApi.csproj", "src/Services/ProductCatalogApi/"]
+				#RUN dotnet restore "src/Services/ProductCatalogApi/ProductCatalogApi.csproj"
+				#COPY . .
+				#WORKDIR "/src/src/Services/ProductCatalogApi"
+				#RUN dotnet build "ProductCatalogApi.csproj" -c Release -o /code
+				#
+				#FROM build AS publish
+				#RUN dotnet publish "ProductCatalogApi.csproj" -c Release -o /code
+				#
+				#FROM base AS final
+				#WORKDIR /code
+				#COPY --from=publish /code .
+				#ENTRYPOINT ["dotnet", "ProductCatalogApi.dll"]
+
+#Run dockerfile 
+docker build -t shoes/catalog .
+
+#docker-composer.yml : watch out the indentation, use only space with (same 3 spaces at each level), also since a linux image is case sensitive (we have a Dockerfile and not a dockerfile)
+
+version: "3.2"
+
+networks:
+   frontend:
+   backend:
+
+services:
+   catalog:
+      build:
+         context: .\src\Services\productCatalogApi
+         dockerfile: Dockerfile
+      environment:
+         - DatabaseServer=mssqlserver
+         - DatabasenName=CatalogDb
+         - DatabaseUser=sa
+         - DatabaseUserPassword=!5F&svw1234
+      container_name: catalogapi
+      ports:
+         - "5004:80"
+      networks:
+         - backend
+         - frontend
+      depends_on:
+         - mssqlserver
+
+   mssqlserver:
+      image: microsoft/mssql-server-linux:latest
+      ports:
+         - "1490:1433"
+      container_name: mssqlcontainer
+      environment:
+         - ACCEPT_EULA=Y
+         - 'SA_PASSWORD=!5F&svw1234'
+      networks:
+         - backend
+
+
+add <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest> to the ProductCatalogApi.csproj file to avoid conflict with the downgraded version .netcore  docker image and our solution
+or downgrade to 2.0.0 (which I did here)
+
+#remove all orphan images from docker 
+docker system prune
+# check passive container
+docker ps -a
+
+#run the docker-composer
+docker-compose build
+
+#start our mssqlserver service
+docker-compose up mssqlserver
+
+#start our mssqlserver service in the background
+docker-compose up -d mssqlserver
+
+#start our catalog service and go to http://localhost:5004/swagger/index.html , we use port 5004 because it's free
+docker-compose up catalog
+
+
