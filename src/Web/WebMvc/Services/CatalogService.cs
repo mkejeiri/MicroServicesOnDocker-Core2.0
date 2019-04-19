@@ -8,6 +8,7 @@ using MicroServicesOnDocker.Web.WebMvc.Infrastructure;
 using MicroServicesOnDocker.Web.WebMvc.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace MicroServicesOnDocker.Web.WebMvc.Services
 {
@@ -32,8 +33,15 @@ namespace MicroServicesOnDocker.Web.WebMvc.Services
                 take: take, brand: brand, type: type);
 
             var catalogItemDataString = await _httpApiClient.GetStringAsync(uri: catalogItemsUri);
-            var response = JsonConvert.DeserializeObject<Catalog>(catalogItemDataString);
-            return response;
+            var response = JsonConvert.DeserializeObject<List<CatalogItem>>(catalogItemDataString);
+            return new Catalog()
+            {
+                CurrentPage = page,
+                PageSize = take,
+                CatalogItems = response,
+                TotalCount = response.Count(),
+                TotalPages = response.Count() * take
+            };
         }
 
         public async Task<IEnumerable<SelectListItem>> GetBrands()

@@ -143,4 +143,8 @@ docker-compose up -d mssqlserver
 #start our catalog service and go to http://localhost:5004/swagger/index.html , we use port 5004 because it's free
 docker-compose up catalog
 
-
+#remove all containers
+docker-compose down
+docker-compose build
+docker-compose up mssqlserver
+docker-compose up catalog

@@ -5,7 +5,7 @@ using MicroServicesOnDocker.Web.WebMvc.Models;
 
 namespace MicroServicesOnDocker.Web.WebMvc.Services
 {
-    interface ICatalogService
+    public interface ICatalogService
     {
         Task<Catalog> GetCatalogItem(int page, int take, int? brand, int? type);
         Task<IEnumerable<SelectListItem>> GetBrands();

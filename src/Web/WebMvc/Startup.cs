@@ -40,7 +40,7 @@ namespace MicroServicesOnDocker.Web.WebMvc
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Catalog/Error");
             }
 
             app.UseStaticFiles();
@@ -49,7 +49,7 @@ namespace MicroServicesOnDocker.Web.WebMvc
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Catalog}/{action=Index}/{id?}");
             });
         }
     }

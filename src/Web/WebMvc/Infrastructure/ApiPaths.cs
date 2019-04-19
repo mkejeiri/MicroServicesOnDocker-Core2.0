@@ -25,12 +25,12 @@
 
             public static string GetAllBrands(string baseUri)
             {
-                return $"{baseUri}/CatalogBrands";
+                return $"{baseUri}/Brands";
             }
 
             public static string GetAllTypes(string baseUri)
             {
-                return $"{baseUri}/CatalogTypes";
+                return $"{baseUri}/Types";
             }
         }
     }
