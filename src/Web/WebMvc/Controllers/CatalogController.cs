@@ -27,11 +27,11 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
                 Brands = await _catalogService.GetBrands(),
                 Types = await _catalogService.GetTypes(),
                 BrandFilterApplied = brandFilterApplied ??0,
-                TypesFilterApplied = typeFilterApplied ??0,
+                TypeFilterApplied = typeFilterApplied ??0,
                 PaginationInfo = new PaginationInfo()
                 {
                     CurrentPage = page ?? 1,
-                    PageSize = pageSize,
+                    PageSize = catalog.CatalogItems.Count ,
                     TotalCount = catalog.TotalCount,
                     TotalPages = (int)Math.Ceiling(((double)catalog.TotalCount /pageSize))
                 }
