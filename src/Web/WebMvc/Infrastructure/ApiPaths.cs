@@ -1,23 +1,22 @@
-﻿namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
+﻿using System;
+
+namespace MicroServicesOnDocker.Services.WebMvc.Infrastructure
 {
     public class ApiPaths
     {
         public static class Catalog
         {
-            public static string GetAllCatalogItems(string baseUri, int page, int take, int? brand, int? type)
+            public static string GetAllCatalogItems(string baseUri, int currentPage, int pageSize, int? brand, int? type)
             {
-                var filterQs = "";
                 if (brand.HasValue || type.HasValue)
                 {
                     var brandQs = (brand.HasValue) ? brand.Value.ToString() : "null";
                     var typeQs = (type.HasValue) ? type.Value.ToString() : "null";
-
-                    filterQs = $"/type/{typeQs}/brand/{brandQs}";
+                    return $"{baseUri}/ItemsTypeBrand/type/{typeQs}/brand/{brandQs}?pageindex={currentPage}&pageSize={pageSize}";
                 }
+                return $"{baseUri}/getItemsPerPage?pageindex={currentPage}&pageSize={pageSize}";
 
-                return $"{baseUri}/items{filterQs}?pageindex={page}&pagesize={take}";
             }
-
             public static string GetCatalogItem(string baseUri, int id)
             {
                 return $"{baseUri}/items/{id}";

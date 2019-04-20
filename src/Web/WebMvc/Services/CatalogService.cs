@@ -1,46 +1,45 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MicroServicesOnDocker.Web.WebMvc.Infrastructure;
+using MicroServicesOnDocker.Services.WebMvc.Dtos;
+using MicroServicesOnDocker.Services.WebMvc.Infrastructure;
+using MicroServicesOnDocker.Web.WebMvc;
 using MicroServicesOnDocker.Web.WebMvc.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 
-namespace MicroServicesOnDocker.Web.WebMvc.Services
+namespace MicroServicesOnDocker.Services.WebMvc.Services
 {
     public class CatalogService : ICatalogService
     {
-        private readonly IOptionsSnapshot<AppSettings> _setting;
         private readonly IHttpClient _httpApiClient;
         private readonly ILogger<CatalogService> _logger;
         private readonly string _remoteServiceBaseUrl;
 
         public CatalogService(IOptionsSnapshot<AppSettings> setting, IHttpClient httpApiClient, ILogger<CatalogService> logger)
         {
-            _setting = setting;
             _httpApiClient = httpApiClient;
             _logger = logger;
-            _remoteServiceBaseUrl = $"{_setting.Value.CatalogUrl}/api/catalog";
+            _remoteServiceBaseUrl = $"{setting.Value.CatalogUrl}/api/catalog";
         }
 
-        public async Task<Catalog> GetCatalogItem(int page, int take, int? brand, int? type)
+        public async Task<Catalog> GetCatalogItem(int currentPage, int pageSize, int? brand, int? type)
         {
-            var catalogItemsUri = ApiPaths.Catalog.GetAllCatalogItems(baseUri: _remoteServiceBaseUrl, page: page,
-                take: take, brand: brand, type: type);
-
+            var catalogItemsUri = ApiPaths.Catalog.GetAllCatalogItems(baseUri: _remoteServiceBaseUrl, currentPage: currentPage,
+                pageSize: pageSize, brand: brand, type: type);
             var catalogItemDataString = await _httpApiClient.GetStringAsync(uri: catalogItemsUri);
-            var response = JsonConvert.DeserializeObject<List<CatalogItem>>(catalogItemDataString);
+            var response = JsonConvert.DeserializeObject<PagedListDto<CatalogItem>>(catalogItemDataString);
             return new Catalog()
             {
-                CurrentPage = page,
-                PageSize = take,
-                CatalogItems = response,
-                TotalCount = response.Count(),
-                TotalPages = response.Count() * take
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                CatalogItems = response.Items.ToList(),
+                TotalCount = response.TotalCount,
+                TotalPages = response.TotalPages 
             };
         }
 

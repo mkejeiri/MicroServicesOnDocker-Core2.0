@@ -3,14 +3,14 @@
     <div class="container">
         <article class="esh-pager-wrapper row">
             <nav>
-                <a class="esh-pager-item esh-pager-item--navigable" @Model.Previous
+                <a class="esh-pager-item esh-pager-item--navigable @Model.Previous"
                    id="previous"
                    asp-controller="Catalog"
                    asp-action="Index"
                    asp-route-page="@(Model.CurrentPage-1)"
                    aria-label="Previous">Previous</a>
                 <span class="esh-pager-item">
-                    Showing @Model.PageSize of @Model.TotalCount product - Page @(Model.CurrentPage)
+                    Showing @Model.PageSize out of @Model.TotalCount  product - Page @(Model.CurrentPage) / @(Model.TotalPages)
                 </span>
                 <a class="esh-pager-item esh-pager-item--navigable @Model.Next"
                    id="Next"

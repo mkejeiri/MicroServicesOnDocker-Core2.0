@@ -24,7 +24,9 @@ namespace ProductCatalogApi
         {
             services.AddSwaggerGen(swaggerGenOptions =>
             {
-                swaggerGenOptions.SwaggerDoc("v1", new Info { Title = "ProductCatalogApi",
+                swaggerGenOptions.SwaggerDoc("v1", new Info
+                {
+                    Title = "ProductCatalogApi",
                     Version = "v1",
                     Description = "Microservice on docker for ProductCatalogApi"
                 });
@@ -41,8 +43,13 @@ namespace ProductCatalogApi
 
 
             services.AddDbContext<CatalogDbContext>(options =>
-                //options.UseSqlServer(Configuration["connectionString"]));
+#if DEBUG
+                //connectionString is defined in the AppSetting json file
+                options.UseSqlServer(Configuration["connectionString"]));
+#else
+                //connectionString is Docker Environment defined in docker-compose file
                 options.UseSqlServer(connectionString));
+#endif
             services.AddMvc();
         }
 
@@ -53,7 +60,7 @@ namespace ProductCatalogApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 

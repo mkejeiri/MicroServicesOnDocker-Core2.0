@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
+namespace MicroServicesOnDocker.Services.WebMvc.Infrastructure
 {
     public class CustomHttpClient : IHttpClient
     {
@@ -24,6 +24,13 @@ namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
             var response = await _client.SendAsync(requestMessage);
             return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<string> GetTotalCatalogItems(string uri)
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+            var response = await _client.SendAsync(requestMessage);
+            return await response.Content.ReadAsStringAsync() ;
         }
 
         public async Task<HttpResponseMessage> PostAsync<T>(string uri, T item) => await SendHttpMessageAsync(HttpMethod.Post, uri, item);

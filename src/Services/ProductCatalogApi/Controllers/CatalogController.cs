@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ProductCatalogApi.Domain.Entities;
 using ProductCatalogApi.Domain.Repository;
+using ProductCatalogApi.Dtos;
+using ProductCatalogApi.Helpers;
+
 namespace ProductCatalogApi.Controllers
 {
     [Route("api/[controller]")]
@@ -37,7 +40,6 @@ namespace ProductCatalogApi.Controllers
         [Route("[action]")]
         public async Task<IActionResult> Brands() => Ok(await _catalogRepository.GetCatalogBrandsAsync());
 
-
         [HttpGet]
         [Route("items/{id:int}")]
         public async Task<IActionResult> GetItemById(int id)
@@ -49,7 +51,7 @@ namespace ProductCatalogApi.Controllers
                 {
                     return NotFound();
                 }
-               
+
                 item.PictureUri = item.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
                 //use a DTO mapper here
                 return Ok(item);
@@ -60,57 +62,60 @@ namespace ProductCatalogApi.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> GetItems([FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
+        public async Task<IActionResult> GetItemsPerPage([FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 1)
         {
-            string externalBaseUrl = _settings.Value.ExternalBaseUrl.Split(';')[0];
-            var itemsDto = await _catalogRepository.GetPagedCatalogItemsAsync(pageIndex, pageSize);
-            //use a DTO mapper here
-            return Ok(itemsDto.Select(x =>
-            {
-                x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", externalBaseUrl);
-                return x;
-            }));
+            var pagedCatalogItems = await _catalogRepository.GetPagedCatalogItemsAsync(pageIndex, pageSize);
+            return Ok(new PagedListDto<CatalogItem>(totalCount: pagedCatalogItems.TotalCount, currentPage: pagedCatalogItems.CurrentPage,
+                totalPages: pagedCatalogItems.TotalPages, pageSize: pagedCatalogItems.PageSize, items:
+                pagedCatalogItems.Select(x =>
+                                            {
+                                                x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
+                                                return x;
+                                            }).ToList()));
         }
 
         [HttpGet]
         [Route("[action]/like/{name:minlength(1)}")]
-        public async Task<IActionResult> ItemsLikeName(string name, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
+        public async Task<IActionResult> ItemsLikeName(string name, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 1)
         {
-            var itemsDto = await _catalogRepository.GetPagedCatalogItemsByNameAsync(name, pageIndex, pageSize);
+            var pagedCatalogItems = await _catalogRepository.GetPagedCatalogItemsByNameAsync(name, pageIndex, pageSize);
             //use a DTO mapper here
-            return Ok(itemsDto.Select(x =>
-            {
-                x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
-                return x;
-            }));
+            return Ok(new PagedListDto<CatalogItem>(totalCount: pagedCatalogItems.TotalCount, currentPage: pagedCatalogItems.CurrentPage,
+                totalPages: pagedCatalogItems.TotalPages, pageSize: pagedCatalogItems.PageSize, items:
+                pagedCatalogItems.Select(x =>
+                {
+                    x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
+                    return x;
+                }).ToList()));
         }
+
         //GET api/catalog/items/type/1/brand/null?pagesize=4&pageindex=0
         //GET api/catalog/items/type/1/brand/2?pagesize=4&pageindex=0
         [HttpGet]
         [Route("[action]/type/{typeId}/brand/{brandId}")]
         public async Task<IActionResult> ItemsTypeBrand(int? typeId, int? brandId, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 1)
         {
-            if (pageIndex<1)
+            if (pageIndex < 1)
             {
                 return BadRequest("Incorrect page index error");
             }
+            var pagedCatalogItems = await _catalogRepository.GetPagedCatalogItemsByTypeBrandAsync(typeId, brandId, pageIndex, pageSize);
 
-            string externalBaseUrl = _settings.Value.ExternalBaseUrl.Split(';')[0];
-            var itemsDto = await _catalogRepository.GetPagedCatalogItemsByTypeBrandAsync(typeId, brandId, pageIndex, pageSize);
-           
-            //use a DTO mapper here
-            return Ok(itemsDto.Select(x =>
-            {
-                x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", externalBaseUrl);
-                return x;
-            }));
+            return Ok(new PagedListDto<CatalogItem>(totalCount: pagedCatalogItems.TotalCount, currentPage: pagedCatalogItems.CurrentPage,
+                totalPages: pagedCatalogItems.TotalPages, pageSize: pagedCatalogItems.PageSize, items:
+                pagedCatalogItems.Select(x =>
+                {
+                    x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
+                    return x;
+                }).ToList()));
+
         }
 
         [HttpPost]
         [Route("items")]
         public async Task<IActionResult> CreateProduct([FromBody] CatalogItem product)
         {
-           int id = await _catalogRepository.AddAsync(new CatalogItem
+            int id = await _catalogRepository.AddAsync(new CatalogItem
             {
                 CatalogBrandId = product.CatalogBrandId,
                 CatalogTypeId = product.CatalogTypeId,
@@ -119,14 +124,14 @@ namespace ProductCatalogApi.Controllers
                 Price = product.Price,
                 PictureFileName = product.PictureFileName
             });
-           return CreatedAtAction(nameof(GetItemById), new {id});
+            return CreatedAtAction(nameof(GetItemById), new { id });
         }
 
         [HttpPut]
         [Route("items")]
         public async Task<IActionResult> UpdateProduct([FromBody] CatalogItem productToUpdate)
         {
-            if (!await _catalogRepository.Exists(productToUpdate.Id) )
+            if (!await _catalogRepository.Exists(productToUpdate.Id))
             {
                 return NotFound($"Product with id  {productToUpdate.Id} is not found");
             }
@@ -136,8 +141,8 @@ namespace ProductCatalogApi.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        [Route("items")]
+        public async Task<IActionResult> DeleteProduct([FromBody] int id)
         {
             if (!await _catalogRepository.Exists(id))
             {

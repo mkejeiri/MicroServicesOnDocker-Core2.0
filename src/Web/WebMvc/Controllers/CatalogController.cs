@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MicroServicesOnDocker.Services.WebMvc.Services;
 using MicroServicesOnDocker.Services.WebMvc.ViewModels;
 using MicroServicesOnDocker.Web.WebMvc.Models;
-using MicroServicesOnDocker.Web.WebMvc.Services;
 
 namespace MicroServicesOnDocker.Web.WebMvc.Controllers
 {
@@ -19,7 +19,7 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
         {
             //TODO: this should be moved to appSetting.json
             int pageSize = 10;
-            Catalog catalog = await _catalogService.GetCatalogItem(page: page ?? 1, take: pageSize, brandFilterApplied,
+            Catalog catalog = await _catalogService.GetCatalogItem(currentPage: page ?? 1, pageSize: pageSize, brandFilterApplied,
               typeFilterApplied);
             var catalogIndexViewModel = new CatalogIndexViewModel()
             {
@@ -30,13 +30,13 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
                 TypesFilterApplied = typeFilterApplied ??0,
                 PaginationInfo = new PaginationInfo()
                 {
-                    CurrentPage = page?? 1,
+                    CurrentPage = page ?? 1,
                     PageSize = pageSize,
                     TotalCount = catalog.TotalCount,
                     TotalPages = (int)Math.Ceiling(((double)catalog.TotalCount /pageSize))
                 }
             };
-            catalogIndexViewModel.PaginationInfo.Next = (catalogIndexViewModel.PaginationInfo.CurrentPage == catalogIndexViewModel.PaginationInfo.TotalCount - 1) ? "is-disabled" : "";
+            catalogIndexViewModel.PaginationInfo.Next = (catalogIndexViewModel.PaginationInfo.CurrentPage == catalogIndexViewModel.PaginationInfo.TotalPages) ? "is-disabled" : "";
             catalogIndexViewModel.PaginationInfo.Previous  = (catalogIndexViewModel.PaginationInfo.CurrentPage == 1)? "is-disabled" : "";
             return View(catalogIndexViewModel);
         }
