@@ -26,7 +26,7 @@ services:
          dockerfile: Dockerfile
       environment:
          - DatabaseServer=mssqlserver
-         - DatabasenName=CatalogDb
+         - DatabaseName=CatalogDb
          - DatabaseUser=sa
          - DatabaseUserPassword=!5F&svw1234
       container_name: catalogapi

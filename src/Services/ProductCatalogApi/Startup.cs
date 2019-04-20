@@ -34,7 +34,7 @@ namespace ProductCatalogApi
 
             //at runtime for dockerized build the connection string will be read from the docker-compose.yml
             var server = Configuration["DatabaseServer"];
-            var database = Configuration["DatabasenName"];
+            var database = Configuration["DatabaseName"];
             var user = Configuration["DatabaseUser"];
             var password = Configuration["DatabaseUserPassword"];
             var connectionString = $"Server={server}; Database={database};User={user};Password={password}";
