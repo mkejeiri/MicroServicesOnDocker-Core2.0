@@ -8,21 +8,18 @@
                    asp-controller="Catalog"
                    asp-action="Index"
                    asp-route-page="@(Model.CurrentPage-1)"
-                   aria-label="Previous">
-                    Previous
-                </a>
+                   aria-label="Previous">Previous</a>
+                <span class="esh-pager-item">
+                    Showing @Model.PageSize of @Model.TotalCount product - Page @(Model.CurrentPage)
+                </span>
+                <a class="esh-pager-item esh-pager-item--navigable @Model.Next"
+                   id="Next"
+                   asp-controller="Catalog"
+                   asp-action="Index"
+                   asp-route-page="@(Model.CurrentPage + 1)"
+                   aria-label="Next">Next</a>
             </nav>
-            <span class="esh-pager-item">
-                Showing @Model.PageSize of @Model.TotalCount product - Page @(Model.CurrentPage)
-            </span>
-            <a class="esh-pager-item esh-pager-item--navigable @Model.Next"
-               id="Next"
-               asp-controller="Catalog"
-               asp-action="Index"
-               asp-route-page="@(Model.CurrentPage + 1)"
-               aria-label="Next">
-                Next
-            </a>
+           
         </article>
     </div>
 </div>

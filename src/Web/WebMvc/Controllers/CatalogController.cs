@@ -25,6 +25,7 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
             {
                 CatalogItems =  catalog.CatalogItems, 
                 Brands = await _catalogService.GetBrands(),
+                Types = await _catalogService.GetTypes(),
                 BrandFilterApplied = brandFilterApplied ??0,
                 TypesFilterApplied = typeFilterApplied ??0,
                 PaginationInfo = new PaginationInfo()

@@ -40,7 +40,7 @@ namespace MicroServicesOnDocker.Web.WebMvc
             }
             else
             {
-                app.UseExceptionHandler("/Catalog/Error");
+                app.UseExceptionHandler("/Home/Error");
             }
 
             app.UseStaticFiles();

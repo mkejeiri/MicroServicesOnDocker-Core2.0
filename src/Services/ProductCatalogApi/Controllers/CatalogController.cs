@@ -11,11 +11,13 @@ namespace ProductCatalogApi.Controllers
     {
         private readonly ICatalogRepository _catalogRepository;
         private readonly IOptionsSnapshot<AppSettings> _settings;
+        private readonly string _externalBaseUrl;
 
         public CatalogController(ICatalogRepository catalogRepository, IOptionsSnapshot<AppSettings> settings)
         {
             _catalogRepository = catalogRepository;
             _settings = settings;
+            _externalBaseUrl = _settings.Value.ExternalBaseUrl.Split(';')[0];
             //string externalBaseUrl = _settings.Value.ExternalBaseUrl;
         }
 
@@ -25,7 +27,11 @@ namespace ProductCatalogApi.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IActionResult> Items() => Ok(await _catalogRepository.GetCatalogItemsAsync());
+        public async Task<IActionResult> Items() => Ok((await _catalogRepository.GetCatalogItemsAsync()).Select(x =>
+        {
+            x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
+            return x;
+        }));
 
         [HttpGet]
         [Route("[action]")]
@@ -43,9 +49,8 @@ namespace ProductCatalogApi.Controllers
                 {
                     return NotFound();
                 }
-
-                string externalBaseUrl = _settings.Value.ExternalBaseUrl.Split(';')[0];
-                item.PictureUri = item.PictureUri.Replace("[externalBaseUrl]", externalBaseUrl);
+               
+                item.PictureUri = item.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
                 //use a DTO mapper here
                 return Ok(item);
             }
@@ -71,12 +76,11 @@ namespace ProductCatalogApi.Controllers
         [Route("[action]/like/{name:minlength(1)}")]
         public async Task<IActionResult> ItemsLikeName(string name, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
         {
-            string externalBaseUrl = _settings.Value.ExternalBaseUrl.Split(';')[0];
             var itemsDto = await _catalogRepository.GetPagedCatalogItemsByNameAsync(name, pageIndex, pageSize);
             //use a DTO mapper here
             return Ok(itemsDto.Select(x =>
             {
-                x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", externalBaseUrl);
+                x.PictureUri = x.PictureUri.Replace("[externalBaseUrl]", _externalBaseUrl);
                 return x;
             }));
         }

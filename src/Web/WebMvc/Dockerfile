@@ -10,7 +10,8 @@ RUN dotnet publish --output /out/ --configuration Release
 
 # Build runtime images
 FROM microsoft/aspnetcore:latest
-WORKDIR /code
+WORKDIR /app
 COPY --from=build /out /app/
 EXPOSE 80/tcp
+WORKDIR /app
 ENTRYPOINT ["dotnet", "WebMvc.dll"]
