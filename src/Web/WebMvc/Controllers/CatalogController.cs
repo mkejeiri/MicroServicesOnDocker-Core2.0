@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MicroServicesOnDocker.Services.WebMvc.Services;
 using MicroServicesOnDocker.Services.WebMvc.ViewModels;
@@ -40,7 +41,8 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
             catalogIndexViewModel.PaginationInfo.Previous  = (catalogIndexViewModel.PaginationInfo.CurrentPage == 1)? "is-disabled" : "";
             return View(catalogIndexViewModel);
         }
-
+         
+        [Authorize]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";

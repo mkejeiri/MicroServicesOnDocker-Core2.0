@@ -148,3 +148,67 @@ docker-compose down
 docker-compose build
 docker-compose up mssqlserver
 docker-compose up catalog
+
+
+
+#docker-composer.yml (updated): watch out the dependencies order and ENV var
+			version: "3.2"
+
+			networks:
+			   frontend:
+			   backend:
+
+			services:
+			   webmvc:
+				  build:
+					 context: .\src\Web\WebMvc
+					 dockerfile: Dockerfile
+				  environment:
+					 - ASPNETCORE_ENVIRONMENT=Development
+					 - CatalogUrl=http://catalog
+				  container_name: webfront
+				  ports:
+					 - "5500:80"
+				  networks:
+					 - frontend
+				  depends_on:
+					 - catalog
+			   catalog:
+				  build:
+					 context: .\src\Services\productCatalogApi
+					 dockerfile: Dockerfile
+				  environment:
+					 - DatabaseServer=mssqlserver
+					 - DatabaseName=CatalogDb
+					 - DatabaseUser=sa
+					 - DatabaseUserPassword=!5F&svw1234
+				  container_name: catalogapi
+				  ports:
+					 - "5004:80"
+				  networks:
+					 - backend
+					 - frontend
+				  depends_on:
+					 - mssqlserver
+
+			   mssqlserver:
+				  image: microsoft/mssql-server-linux:latest
+				  ports:
+					 - "1490:1433"
+				  container_name: mssqlcontainer
+				  environment:
+					 - ACCEPT_EULA=Y
+					 - 'SA_PASSWORD=!5F&svw1234'
+				  networks:
+					 - backend
+
+#Athentication and authorization
+see https://github.com/IdentityServer/IdentityServer4.Samples/tree/master/Quickstarts
+see https://identityserver4.readthedocs.io/en/latest/intro/big_picture.html
+1- create TokenServiceApi with view-model
+2- add IdentityServer4 from nuget pack
+3- add IdentityServer4.Asp  from nuget pack :this will be used as a bridge between IdentityServer4 and asp core identity
+
+ipconfig gives:
+Ethernet adapter vEthernet (DockerNAT):  10.0.75.1
+IdentityUrl=http://10.0.75.1:5300 since it's an external component running on port 5300

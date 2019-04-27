@@ -32,6 +32,9 @@ namespace MicroServicesOnDocker.Services.WebMvc.Services
             var catalogItemsUri = ApiPaths.Catalog.GetAllCatalogItems(baseUri: _remoteServiceBaseUrl, currentPage: currentPage,
                 pageSize: pageSize, brand: brand, type: type);
             var catalogItemDataString = await _httpApiClient.GetStringAsync(uri: catalogItemsUri);
+            Console.WriteLine("catalogItemDataString => ....");
+            Console.WriteLine(catalogItemDataString);
+            Console.WriteLine("catalogItemDataString <= ....");
             var response = JsonConvert.DeserializeObject<PagedListDto<CatalogItem>>(catalogItemDataString);
             return new Catalog()
             {

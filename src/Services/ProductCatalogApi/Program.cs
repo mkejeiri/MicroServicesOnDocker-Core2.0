@@ -21,6 +21,7 @@ namespace ProductCatalogApi
             var host = CreateWebHostBuilder(args).Build();
             using (var scope = host.Services.CreateScope())
             {
+                //get a reference to DI container
                 var services = scope.ServiceProvider;
                 try
                 {

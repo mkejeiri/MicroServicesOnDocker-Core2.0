@@ -17,6 +17,7 @@ FROM microsoft/aspnetcore:latest
 #copy the only the built artifacts from the previous stages (out folder) to the downloaded runtime container inside folder app
 COPY --from=build /out /app/
 WORKDIR /app
+EXPOSE 80/tcp
 #this is the entry point for the app to run, dotnet runtime + dll
 ENTRYPOINT ["dotnet", "ProductCatalogApi.dll"]
 
