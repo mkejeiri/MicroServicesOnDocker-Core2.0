@@ -1,6 +1,4 @@
-using System;
-
-namespace TokenServiceApi.Models
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Models
 {
     public class ErrorViewModel
     {

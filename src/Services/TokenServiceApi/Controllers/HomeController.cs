@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
- 
 using IdentityServer4.Services;
- 
-using IdentityServer4.Quickstart.UI;
+using Microsoft.AspNetCore.Mvc;
+using MicroServicesOnDocker.Services.TokenServiceApi.Quickstart.Home;
 
-namespace TokenServiceApi.Controllers
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Controllers
 {
     public class HomeController : Controller
     {

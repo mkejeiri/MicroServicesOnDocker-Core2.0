@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TokenServiceApi.Models;
+using MicroServicesOnDocker.Services.TokenServiceApi.Models;
 
-namespace TokenServiceApi.Data
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TokenServiceApi.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using MicroServicesOnDocker.Services.TokenServiceApi.Controllers;
 
-namespace Microsoft.AspNetCore.Mvc
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Extensions
 {
     public static class UrlHelperExtensions
     {

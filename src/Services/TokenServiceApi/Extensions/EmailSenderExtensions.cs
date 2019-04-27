@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using TokenServiceApi.Services;
+using MicroServicesOnDocker.Services.TokenServiceApi.Services;
 
-namespace TokenServiceApi.Services
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Extensions
 {
     public static class EmailSenderExtensions
     {

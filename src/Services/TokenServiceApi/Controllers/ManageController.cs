@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -9,12 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using TokenServiceApi.Models;
-using TokenServiceApi.Models.ManageViewModels;
-using TokenServiceApi.Services;
+using MicroServicesOnDocker.Services.TokenServiceApi.Extensions;
+using MicroServicesOnDocker.Services.TokenServiceApi.Models;
+using MicroServicesOnDocker.Services.TokenServiceApi.Models.ManageViewModels;
+using MicroServicesOnDocker.Services.TokenServiceApi.Services;
 
-namespace TokenServiceApi.Controllers
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]

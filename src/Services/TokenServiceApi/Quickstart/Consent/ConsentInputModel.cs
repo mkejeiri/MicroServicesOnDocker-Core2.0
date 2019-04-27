@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace IdentityServer4.Quickstart.UI
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Quickstart.Consent
 {
     public class ConsentInputModel
     {

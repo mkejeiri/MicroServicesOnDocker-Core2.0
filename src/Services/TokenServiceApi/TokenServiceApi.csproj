@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <UserSecretsId>aspnet-TokenServiceApi-C6AF160F-1DCA-4B50-95CE-D1F2FD59B8E3</UserSecretsId>
+    <RootNamespace>MicroServicesOnDocker.Services.TokenServiceApi</RootNamespace>
   </PropertyGroup>
 
 

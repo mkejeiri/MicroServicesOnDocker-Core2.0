@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TokenServiceApi.Models;
+using MicroServicesOnDocker.Services.TokenServiceApi.Models;
 
-namespace TokenServiceApi.Data
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Data
 {
     public class IdentityDbInit
     {

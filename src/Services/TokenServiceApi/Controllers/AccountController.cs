@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using TokenServiceApi.Models;
-using TokenServiceApi.Models.AccountViewModels;
-using TokenServiceApi.Services;
-using IdentityServer4.Services;
-using Microsoft.AspNetCore.Http;
-using IdentityServer4.Quickstart.UI;
- 
+using MicroServicesOnDocker.Services.TokenServiceApi.Extensions;
+using MicroServicesOnDocker.Services.TokenServiceApi.Models;
+using MicroServicesOnDocker.Services.TokenServiceApi.Models.AccountViewModels;
+using MicroServicesOnDocker.Services.TokenServiceApi.Quickstart.Account;
+using MicroServicesOnDocker.Services.TokenServiceApi.Services;
 
-namespace TokenServiceApi.Controllers
+namespace MicroServicesOnDocker.Services.TokenServiceApi.Controllers
 {
     [Authorize]
     [Route("[controller]/[action]")]

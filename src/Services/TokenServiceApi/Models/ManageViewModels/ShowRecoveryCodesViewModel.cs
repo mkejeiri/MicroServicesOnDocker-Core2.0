@@ -1,4 +1,4 @@
-﻿namespace TokenServiceApi.Models.ManageViewModels
+﻿namespace MicroServicesOnDocker.Services.TokenServiceApi.Models.ManageViewModels
 {
     public class ShowRecoveryCodesViewModel
     {
