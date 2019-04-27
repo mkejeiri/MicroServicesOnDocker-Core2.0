@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProductCatalogApi.Data.Extensions;
-using ProductCatalogApi.Domain.Entities;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Data.Extensions;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities;
 
-namespace ProductCatalogApi.Data
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Data
 {
     public class CatalogDbContext : DbContext
     {

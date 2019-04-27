@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ProductCatalogApi.Controllers
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Controllers
 {
     [Route("api/[controller]")]
     public class ImagesController : ControllerBase

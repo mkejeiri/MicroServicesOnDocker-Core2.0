@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogApi.Domain.Entities;
-using ProductCatalogApi.Domain.Repository;
-using ProductCatalogApi.Helpers;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Repository;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Helpers;
 
-namespace ProductCatalogApi.Data
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Data
 {
     public class CatalogSqlServerRepository : ICatalogRepository
     {

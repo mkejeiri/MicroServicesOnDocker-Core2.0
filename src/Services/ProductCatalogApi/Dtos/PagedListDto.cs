@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ProductCatalogApi.Dtos
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Dtos
 {
     public class PagedListDto<T> where T: class
     {

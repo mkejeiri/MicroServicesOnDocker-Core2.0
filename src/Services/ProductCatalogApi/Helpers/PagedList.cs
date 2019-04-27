@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace ProductCatalogApi.Helpers
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Helpers
 {
     public class PagedList<TEntity> : List<TEntity>  where TEntity : class
     {

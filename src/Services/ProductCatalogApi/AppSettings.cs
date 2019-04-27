@@ -1,4 +1,4 @@
-﻿namespace ProductCatalogApi
+﻿namespace MicroServicesOnDocker.Services.ProductCatalogApi
 {
     public class AppSettings
     {

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ProductCatalogApi.Data;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Data;
 
-namespace ProductCatalogApi
+namespace MicroServicesOnDocker.Services.ProductCatalogApi
 {
     /*
      The configure method in the startup class is devoted to operate in the middleware pipeline! (aka components chain),

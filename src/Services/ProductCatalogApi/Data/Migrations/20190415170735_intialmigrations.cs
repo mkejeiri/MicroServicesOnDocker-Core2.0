@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace ProductCatalogApi.Data.Migrations
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Data.Migrations
 {
     public partial class intialmigrations : Migration
     {

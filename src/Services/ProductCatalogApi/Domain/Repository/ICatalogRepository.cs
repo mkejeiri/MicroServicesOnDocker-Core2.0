@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using ProductCatalogApi.Domain.Entities;
-using ProductCatalogApi.Helpers;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Helpers;
 
-namespace ProductCatalogApi.Domain.Repository
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Repository
 {
     public interface ICatalogRepository
     {

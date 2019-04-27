@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ProductCatalogApi.Domain.Entities;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities;
 
-namespace ProductCatalogApi.Data.Extensions
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Data.Extensions
 {
     public static class Extensions
     {

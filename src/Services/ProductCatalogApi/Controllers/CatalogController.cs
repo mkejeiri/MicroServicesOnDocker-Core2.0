@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ProductCatalogApi.Domain.Entities;
-using ProductCatalogApi.Domain.Repository;
-using ProductCatalogApi.Dtos;
-using ProductCatalogApi.Helpers;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Repository;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Dtos;
 
-namespace ProductCatalogApi.Controllers
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Controllers
 {
     [Route("api/[controller]")]
     public class CatalogController : ControllerBase

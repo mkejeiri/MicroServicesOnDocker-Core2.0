@@ -1,4 +1,4 @@
-﻿namespace ProductCatalogApi.Domain.Entities
+﻿namespace MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities
 {
     public class CatalogItem
     {

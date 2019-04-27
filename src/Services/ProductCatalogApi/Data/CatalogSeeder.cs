@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProductCatalogApi.Domain.Entities;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Entities;
 
-namespace ProductCatalogApi.Data
+namespace MicroServicesOnDocker.Services.ProductCatalogApi.Data
 {
     public class CatalogSeeder
     {

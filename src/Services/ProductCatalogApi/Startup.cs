@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ProductCatalogApi.Data;
-using ProductCatalogApi.Domain.Repository;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Data;
+using MicroServicesOnDocker.Services.ProductCatalogApi.Domain.Repository;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace ProductCatalogApi
+namespace MicroServicesOnDocker.Services.ProductCatalogApi
 {
     public class Startup
     {
