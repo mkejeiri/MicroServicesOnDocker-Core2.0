@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MicroServicesOnDocker.Web.WebMvc.Models;
 
-namespace MicroServicesOnDocker.Services.WebMvc.Services
+namespace MicroServicesOnDocker.Web.WebMvc.Services
 {
     public interface ICatalogService
     {

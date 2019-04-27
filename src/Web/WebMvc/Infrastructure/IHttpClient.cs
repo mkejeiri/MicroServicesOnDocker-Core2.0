@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace MicroServicesOnDocker.Services.WebMvc.Infrastructure
+namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
 {
     public interface IHttpClient
     {

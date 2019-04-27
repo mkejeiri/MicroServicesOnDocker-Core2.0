@@ -7,8 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using MicroServicesOnDocker.Services.WebMvc.Infrastructure;
-using MicroServicesOnDocker.Services.WebMvc.Services;
+using MicroServicesOnDocker.Web.WebMvc.Infrastructure;
+using MicroServicesOnDocker.Web.WebMvc.Services;
 
 namespace MicroServicesOnDocker.Web.WebMvc
 {

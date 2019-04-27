@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MicroServicesOnDocker.Services.WebMvc.Infrastructure
+﻿namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
 {
     public class ApiPaths
     {

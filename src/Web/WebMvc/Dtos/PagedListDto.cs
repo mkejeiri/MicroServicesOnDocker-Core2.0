@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MicroServicesOnDocker.Services.WebMvc.Dtos
+namespace MicroServicesOnDocker.Web.WebMvc.Dtos
 {
     public class PagedListDto<T> where T: class
     {

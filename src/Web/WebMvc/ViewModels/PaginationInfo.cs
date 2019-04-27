@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace MicroServicesOnDocker.Services.WebMvc.ViewModels
+﻿namespace MicroServicesOnDocker.Web.WebMvc.ViewModels
 {
     public class PaginationInfo
     {

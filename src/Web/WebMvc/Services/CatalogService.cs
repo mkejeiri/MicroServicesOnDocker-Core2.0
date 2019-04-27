@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MicroServicesOnDocker.Services.WebMvc.Dtos;
-using MicroServicesOnDocker.Services.WebMvc.Infrastructure;
-using MicroServicesOnDocker.Web.WebMvc;
+using MicroServicesOnDocker.Web.WebMvc.Dtos;
+using MicroServicesOnDocker.Web.WebMvc.Infrastructure;
 using MicroServicesOnDocker.Web.WebMvc.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace MicroServicesOnDocker.Services.WebMvc.Services
+namespace MicroServicesOnDocker.Web.WebMvc.Services
 {
     public class CatalogService : ICatalogService
     {

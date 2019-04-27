@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MicroServicesOnDocker.Web.WebMvc.Models;
 
-namespace MicroServicesOnDocker.Services.WebMvc.ViewModels
+namespace MicroServicesOnDocker.Web.WebMvc.ViewModels
 {
     public class CatalogIndexViewModel
     {

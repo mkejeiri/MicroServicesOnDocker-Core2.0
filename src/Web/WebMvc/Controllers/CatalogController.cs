@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MicroServicesOnDocker.Services.WebMvc.Services;
-using MicroServicesOnDocker.Services.WebMvc.ViewModels;
 using MicroServicesOnDocker.Web.WebMvc.Models;
+using MicroServicesOnDocker.Web.WebMvc.Services;
+using MicroServicesOnDocker.Web.WebMvc.ViewModels;
 
 namespace MicroServicesOnDocker.Web.WebMvc.Controllers
 {
