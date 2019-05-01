@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ShoesOnContainers.Services.CartApi.Model
+namespace MicroServicesOnDocker.Services.CartApi.Model
 {
     public interface ICartRepository
     {

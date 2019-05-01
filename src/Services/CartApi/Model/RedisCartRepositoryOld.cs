@@ -1,16 +1,15 @@
-﻿using CartApi;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StackExchange.Redis;
-//using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
-namespace ShoesOnContainers.Services.CartApi.Model
+//using StackExchange.Redis;
+
+namespace MicroServicesOnDocker.Services.CartApi.Model
 {
     public class RedisCartRepositoryOld : ICartRepository
     {
