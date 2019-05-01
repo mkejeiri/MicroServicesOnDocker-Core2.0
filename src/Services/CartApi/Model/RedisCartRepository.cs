@@ -10,7 +10,7 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
     public class RedisCartRepository : ICartRepository
     {
         private readonly ILogger<RedisCartRepository> _logger;
-
+        //Redis comes already with .net core no nuget pack is needed
         private readonly ConnectionMultiplexer _redis;
         private readonly IDatabase _database;
 
@@ -21,9 +21,42 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
             _database = redis.GetDatabase();
         }
 
-        public async Task<bool> DeleteCartAsync(string id)
+        public async Task<bool> DeleteCartAsync(string cardId)
         {
-            return await _database.KeyDeleteAsync(id);
+            return await _database.KeyDeleteAsync(cardId);
+        }
+
+        
+
+        public async Task<Cart> GetCartAsync(string cardId)
+        {
+            var data = await _database.StringGetAsync(cardId);
+            if (data.IsNullOrEmpty)
+            {
+                return null;
+            }
+
+            return JsonConvert.DeserializeObject<Cart>(data);
+        }
+
+        public async Task<Cart> UpdateCartAsync(Cart cart)
+        {
+            var created = await _database.StringSetAsync(cart.CardId, JsonConvert.SerializeObject(cart));
+            if (!created)
+            {
+                _logger.LogInformation("Problem occur when persisting the cart.");
+                return null;
+            }
+
+            _logger.LogInformation("Cart item is successfully persisted.");
+
+            return await GetCartAsync(cart.CardId);
+        }
+
+        private IServer GetServer()
+        {
+            var endpoint = _redis.GetEndPoints();
+            return _redis.GetServer(endpoint.First());
         }
 
         public IEnumerable<string> GetUsers()
@@ -33,36 +66,5 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
             return data?.Select(k => k.ToString());
         }
 
-        public async Task<Cart> GetCartAsync(string customerId)
-        {
-            var data = await _database.StringGetAsync(customerId);
-            if (data.IsNullOrEmpty)
-            {
-                return null;
-            }
-
-            return JsonConvert.DeserializeObject<Cart>(data);
-        }
-
-        public async Task<Cart> UpdateCartAsync(Cart basket)
-        {
-            var created = await _database.StringSetAsync(basket.BuyerId, JsonConvert.SerializeObject(basket));
-            if (!created)
-            {
-                _logger.LogInformation("Problem occur persisting the item.");
-                return null;
-            }
-
-            _logger.LogInformation("Basket item persisted succesfully.");
-
-            return await GetCartAsync(basket.BuyerId);
-        }
-
-        private IServer GetServer()
-        {
-            var endpoint = _redis.GetEndPoints();
-            return _redis.GetServer(endpoint.First());
-        }
- 
     }
 }

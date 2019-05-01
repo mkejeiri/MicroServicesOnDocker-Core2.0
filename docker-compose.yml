@@ -39,7 +39,6 @@ services:
          - frontend
       depends_on:
          - mssqlserver
-
    tokenserver:
       build:
          context: .\src\Services\TokenServiceApi
@@ -67,5 +66,28 @@ services:
       environment:
          - ACCEPT_EULA=Y
          - 'SA_PASSWORD=!5F&svw1234'
+      networks:
+         - backend
+   cart:
+      image: cartimage
+      build: 
+         context: .\src\Services\CartApi
+         dockerfile: Dockerfile
+      environment: 
+         - ASPNETCORE_ENVIRONMENT=Development
+      container_name: cartapi
+      ports:
+         - "5500:80"
+      networks:
+         - backend
+         - frontend
+      depends_on:
+         - basket.data
+         - tokenserver
+   basket.data:
+      image: redis
+      ports:
+         - "6377:6379"
+      container_name: rediscontainer
       networks:
          - backend

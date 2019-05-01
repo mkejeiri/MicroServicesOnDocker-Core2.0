@@ -1,4 +1,4 @@
-﻿FROM microsoft/aspnetcore-build:2.0 AS build-env
+﻿FROM microsoft/aspnetcore-build:latest AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
@@ -11,8 +11,8 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # build runtime image
-FROM microsoft/aspnetcore:2.0
+FROM microsoft/aspnetcore:latest
 WORKDIR /app
-COPY --from=build-env /app/out .
+COPY --from=build /app/out .
 EXPOSE 80/tcp
 ENTRYPOINT ["dotnet", "CartApi.dll"]

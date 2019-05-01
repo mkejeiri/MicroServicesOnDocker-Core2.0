@@ -16,15 +16,15 @@ namespace MicroServicesOnDocker.Services.TokenServiceApi
             Dictionary<string, string> urls = new Dictionary<string, string>();
 
             urls.Add("Mvc", configuration.GetValue<string>("MvcClient"));
-
+            urls.Add("CartApi", configuration.GetValue<string>("CartApiClient"));
+            urls.Add("OrderApi", configuration.GetValue<string>("OrderApiClient"));
             return urls;
-
         }
         public static IEnumerable<ApiResource> GetApiResources()
         {
             return new List<ApiResource>
             {
-                 new ApiResource("basket", "Shopping Cart Api"),
+                 new ApiResource("cart", "Shopping Cart Api"),
                  new ApiResource("orders", "Ordering Api"),
             };
         }
@@ -42,7 +42,7 @@ namespace MicroServicesOnDocker.Services.TokenServiceApi
         }
         public static IEnumerable<Client> GetClients(Dictionary<string, string> clientUrls)
         {
-
+            //known client of the TokenServiceApi
             return new List<Client>()
             {
                 new Client
@@ -64,11 +64,38 @@ namespace MicroServicesOnDocker.Services.TokenServiceApi
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess,
                       //  IdentityServerConstants.StandardScopes.Email,
-                         "orders",
-                        "basket",
-
+                        "orders",
+                        "cart",
                     }
+                },
+                new Client
+                {
+                    ClientId = "cartswaggerui",
+                    ClientName = "Shopping Cart HTTP API",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
 
+                    //RedirectUris = {$"{clientUrls["CartApi"]}/swagger/o2c.html"},
+                    RedirectUris = {$"{clientUrls["CartApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = {$"{clientUrls["CartApi"]}/swagger/" },
+                    AllowedScopes = new List<string>
+                    {
+                        "cart"
+                    }
+                },
+                new Client
+                {
+                    ClientId = "orderswaggerui",
+                    ClientName = "Order Swagger UI",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+
+                    RedirectUris = {$"{clientUrls["OrderApi"]}/swagger/oauth2-redirect.html" },
+                    PostLogoutRedirectUris = {$"{clientUrls["OrderApi"]}/swagger/" },
+                    AllowedScopes = new List<string>
+                    {
+                        "order"
+                    }
                 }
             };
         }

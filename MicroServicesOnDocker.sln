@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductCatalogApi", "src\Se
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DD69BB83-7B71-48AE-992F-EF3EE887E197}"
 	ProjectSection(SolutionItems) = preProject
+		docker-compose.CartApi.redis-test.yml = docker-compose.CartApi.redis-test.yml
+		docker-compose.CartApi.yml = docker-compose.CartApi.yml
 		docker-compose.yml = docker-compose.yml
 		instructions_memo.txt = instructions_memo.txt
 	EndProjectSection
@@ -21,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMvc", "src\Web\WebMvc\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenServiceApi", "src\Services\TokenServiceApi\TokenServiceApi.csproj", "{1976B264-59AB-4270-87C2-0899C7A356D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartApi", "src\Services\CartApi\CartApi.csproj", "{69700CDF-D6F3-4B8D-B104-13A22CE3CE11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CartApi", "src\Services\CartApi\CartApi.csproj", "{69700CDF-D6F3-4B8D-B104-13A22CE3CE11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

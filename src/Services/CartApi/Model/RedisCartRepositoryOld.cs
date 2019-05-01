@@ -27,12 +27,12 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
             _logger.LogInformation("Redis instance :" + _redis);
         }
 
-        public async Task<bool> DeleteCartAsync(string id)
+        public async Task<bool> DeleteCartAsync(string cardId)
         {
             var database = await GetDatabase();
             _logger.LogInformation("Redis Delete method");
-            _logger.LogInformation("Redis Delete :"+ id.ToString());
-            return await database.KeyDeleteAsync(id.ToString());
+            _logger.LogInformation("Redis Delete :"+ cardId.ToString());
+            return await database.KeyDeleteAsync(cardId.ToString());
         }
 
         public async Task<IEnumerable<string>> GetCartsAsync()
@@ -48,11 +48,11 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
             return data.Select(k => k.ToString());
         }
 
-        public async Task<Cart> GetCartAsync(string cartId)
+        public async Task<Cart> GetCartAsync(string cardId)
         {
              var database = await GetDatabase();
             
-            var data = await database.StringGetAsync(cartId.ToString());
+            var data = await database.StringGetAsync(cardId.ToString());
 
             if (data.IsNullOrEmpty)
             {
@@ -68,7 +68,7 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
         {
             var database = await GetDatabase();
           
-            var created = await database.StringSetAsync(cart.BuyerId, JsonConvert.SerializeObject(cart));
+            var created = await database.StringSetAsync(cart.CardId, JsonConvert.SerializeObject(cart));
             if (!created)
             {
                 _logger.LogInformation("Problem occur persisting the item.");
@@ -77,7 +77,7 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
 
             _logger.LogInformation("Basket item persisted succesfully.");
 
-            return await GetCartAsync(cart.BuyerId);
+            return await GetCartAsync(cart.CardId);
         }
 
         private async Task<IDatabase> GetDatabase()

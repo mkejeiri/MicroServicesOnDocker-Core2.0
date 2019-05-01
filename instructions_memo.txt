@@ -212,3 +212,69 @@ see https://identityserver4.readthedocs.io/en/latest/intro/big_picture.html
 ipconfig gives:
 Ethernet adapter vEthernet (DockerNAT):  10.0.75.1
 IdentityUrl=http://10.0.75.1:5300 since it's an external component running on port 5300
+
+
+#create a CartApi
+- it's a redis db for storing and retrieving the shopping cart for a customer
+- key, value pair db (cartId, Json representation of a cart)
+- customerId=buyerId=cartId
+- Exceptions are handled globally by HttpGlobalExceptionFilter class and register in the pipeline in the startup class
+- two kind of exceptions: CartDomainException (sent as a BadRequest) and system exception (sent as 500 Internal Server Error)
+- Swagger also added and authentication is skipped for Swagger now
+
+#Implementation
+added docker-compose.CartApi.redis
+version: "3.2"
+networks:
+  backend:
+services:
+  basket.data:
+    image: redis
+    ports:
+      - "6377:6379"
+    networks:
+      - backend
+
+contains a single docker container service named basket.data and built from image:redis downloaded from docker hub
+port is remapped from 6379 (redis default) to 6377 and placed in software defined backend network.
+
+run =>
+docker pull redis:latest
+docker-compose -f docker-compose.CartApi.redis.yml build
+docker-compose -f docker-compose.CartApi.redis.yml up basket.data
+
+
+#Adding all docker-compose for shopping cart Api
+services:
+  cart:
+    image: cartimage
+    build: 
+      context: .\src\Services\CartApi
+      dockerfile: Dockerfile
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Development
+    container_name: cartapi
+    ports:
+      - "5500:80"
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - basket.data
+  
+  basket.data:
+    image: redis
+    ports:
+      - "6377:6379"
+    networks:
+      - backend
+
+#Connection string need also to be changed from ConnectionString": "127.0.0.1:6377" to  "ConnectionString": "basket.data"
+
+#CartApi protection
+need to allow only swagger and webmvc client.
+	a- Added ConfigureAuthServices config in CartApi startup class
+	b- we should also add swagger UI in the list of client in the tokenServiceApi config.cs
+
+
+

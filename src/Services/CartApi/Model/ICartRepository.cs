@@ -5,9 +5,9 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
 {
     public interface ICartRepository
     {
-        Task<Cart> GetCartAsync(string cartId);
+        Task<Cart> GetCartAsync(string cardId);
          IEnumerable<string>  GetUsers();
-        Task<Cart> UpdateCartAsync(Cart basket);
-        Task<bool> DeleteCartAsync(string id);
+        Task<Cart> UpdateCartAsync(Cart cart);
+        Task<bool> DeleteCartAsync(string cardId);
     }
 }

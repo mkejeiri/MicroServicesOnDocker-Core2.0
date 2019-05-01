@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MicroServicesOnDocker.Services.CartApi.Model;
@@ -7,6 +8,7 @@ using MicroServicesOnDocker.Services.CartApi.Model;
 namespace MicroServicesOnDocker.Services.CartApi.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class CartController : Controller
     {
         private ICartRepository _repository;
@@ -42,8 +44,6 @@ namespace MicroServicesOnDocker.Services.CartApi.Controllers
         {
             _logger.LogInformation("Delete method in Cart controller reached");
             _repository.DeleteCartAsync(id);
-         
-
         }
     }
 }

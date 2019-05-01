@@ -21,9 +21,7 @@ namespace MicroServicesOnDocker.Services.CartApi.Infrastructure.Filters
 
         public void OnException(ExceptionContext context)
         {
-            logger.LogError(new EventId(context.Exception.HResult),
-                context.Exception,
-                context.Exception.Message);
+            logger.LogError(new EventId(context.Exception.HResult),context.Exception,context.Exception.Message);
 
             if (context.Exception.GetType() == typeof(CartDomainException))
             {
@@ -56,7 +54,6 @@ namespace MicroServicesOnDocker.Services.CartApi.Infrastructure.Filters
         private class JsonErrorResponse
         {
             public string[] Messages { get; set; }
-
             public object DeveloperMessage { get; set; }
         }
     }
