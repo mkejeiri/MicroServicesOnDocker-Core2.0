@@ -71,7 +71,7 @@ namespace MicroServicesOnDocker.Services.TokenServiceApi
                 new Client
                 {
                     ClientId = "cartswaggerui",
-                    ClientName = "Shopping Cart HTTP API",
+                    ClientName = "Cart Swagger UI",
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 

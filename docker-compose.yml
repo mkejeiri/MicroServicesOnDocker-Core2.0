@@ -75,6 +75,7 @@ services:
          dockerfile: Dockerfile
       environment: 
          - ASPNETCORE_ENVIRONMENT=Development
+         - IdentityUrl=http://10.0.75.1:5300
       container_name: cartapi
       ports:
          - "5500:80"
@@ -82,9 +83,9 @@ services:
          - backend
          - frontend
       depends_on:
-         - basket.data
+         - cart.data
          - tokenserver
-   basket.data:
+   cart.data:
       image: redis
       ports:
          - "6377:6379"

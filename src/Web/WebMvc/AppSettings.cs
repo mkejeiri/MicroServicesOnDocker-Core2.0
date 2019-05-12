@@ -4,6 +4,8 @@ namespace MicroServicesOnDocker.Web.WebMvc
     public class AppSettings
     {
         public string CatalogUrl { get; set; }
+        public string CartUrl { get; set; }
+        public string IdentityUrl { get; set; }
         public Logging Logging { get; set; }
 
        

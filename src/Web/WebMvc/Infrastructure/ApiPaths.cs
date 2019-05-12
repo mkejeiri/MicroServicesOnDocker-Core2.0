@@ -2,6 +2,23 @@
 {
     public class ApiPaths
     {
+        public static class Cart
+        {
+            public static string GetCart(string baseUri, string cartId)
+            {
+                return $"{baseUri}/{cartId}";
+            }
+
+            public static string UpdateCart(string baseUri)
+            {
+                return baseUri;
+            }
+
+            public static string CleanCart(string baseUri, string cartId)
+            {
+                return $"{baseUri}/{cartId}";
+            }
+        }
         public static class Catalog
         {
             public static string GetAllCatalogItems(string baseUri, int currentPage, int pageSize, int? brand, int? type)

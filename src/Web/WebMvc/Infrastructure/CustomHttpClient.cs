@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,9 +20,16 @@ namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
             //_client = new HttpClient();
             _client = client;
         }
-        public async Task<string> GetStringAsync(string uri)
+        public async Task<string> GetStringAsync(string uri, string authorizationToken = null, string authorizationMethod = "Bearer")
         {
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            //set the header authorizationToken is not null
+            if (authorizationToken !=null)
+            {
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue(authorizationMethod, authorizationToken);
+            }
+           
             var response = await _client.SendAsync(requestMessage);
             return await response.Content.ReadAsStringAsync();
         }
@@ -33,10 +41,21 @@ namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
             return await response.Content.ReadAsStringAsync() ;
         }
 
-        public async Task<HttpResponseMessage> PostAsync<T>(string uri, T item) => await SendHttpMessageAsync(HttpMethod.Post, uri, item);
-        public async Task<HttpResponseMessage> DeleteAsync<T>(string uri) => await _client.SendAsync(new HttpRequestMessage(HttpMethod.Delete, uri));
-        public async Task<HttpResponseMessage> PutAsync<T>(string uri, T item) => await SendHttpMessageAsync(HttpMethod.Put, uri, item);
-        private async Task<HttpResponseMessage> SendHttpMessageAsync<T>(HttpMethod httpMethod, string uri, T item)
+        public async Task<HttpResponseMessage> PostAsync<T>(string uri, T item, string authorizationToken = null, string authorizationMethod = "Bearer") => await SendHttpMessageAsync(HttpMethod.Post, uri, item, authorizationToken, authorizationMethod);
+
+        public async Task<HttpResponseMessage> DeleteAsync(string uri, string authorizationToken = null,
+            string authorizationMethod = "Bearer")
+        {
+            var requestMessage = new HttpRequestMessage(HttpMethod.Delete, uri) ;
+            if (authorizationToken != null)
+            {
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue(authorizationMethod, authorizationToken);
+            }
+            return await _client.SendAsync(requestMessage);
+        } 
+        public async Task<HttpResponseMessage> PutAsync<T>(string uri, T item, string authorizationToken = null, string authorizationMethod = "Bearer") => await SendHttpMessageAsync(HttpMethod.Put, uri, item, authorizationToken, authorizationMethod);
+
+        private async Task<HttpResponseMessage> SendHttpMessageAsync<T>(HttpMethod httpMethod, string uri, T item, string authorizationToken = null, string authorizationMethod = "Bearer")
         {
             var allowed = new List<HttpMethod> { HttpMethod.Post, HttpMethod.Put};
             if (!allowed.Contains(httpMethod))
@@ -45,9 +64,12 @@ namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
             }
             var requestMessage = new HttpRequestMessage(httpMethod, uri)
             {
-                Content = new StringContent(content:JsonConvert.SerializeObject(item), encoding: System.Text.Encoding.UTF8, mediaType: "application/json")
+                Content = new StringContent(content: JsonConvert.SerializeObject(item), encoding: System.Text.Encoding.UTF8, mediaType: "application/json")
             };
-
+            if (authorizationToken != null)
+            {
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue(authorizationMethod, authorizationToken);
+            }
             //raise an exception for http response code 500
             //needed for circuit breaker to track the failure
             var response = await _client.SendAsync(requestMessage);
@@ -57,5 +79,6 @@ namespace MicroServicesOnDocker.Web.WebMvc.Infrastructure
             }
             return response;
         }
+
     }
 }

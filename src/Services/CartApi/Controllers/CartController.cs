@@ -7,8 +7,8 @@ using MicroServicesOnDocker.Services.CartApi.Model;
 
 namespace MicroServicesOnDocker.Services.CartApi.Controllers
 {
+   // [Authorize]
     [Route("api/v1/[controller]")]
-    [Authorize]
     public class CartController : Controller
     {
         private ICartRepository _repository;
@@ -23,9 +23,9 @@ namespace MicroServicesOnDocker.Services.CartApi.Controllers
         [ProducesResponseType(typeof(Cart), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get(string id)
         {
-            var basket = await _repository.GetCartAsync(id);
+            var cartAsync = await _repository.GetCartAsync(id);
 
-            return Ok(basket);
+            return Ok(cartAsync);
         }
 
         // POST api/v1/cart/
@@ -33,9 +33,9 @@ namespace MicroServicesOnDocker.Services.CartApi.Controllers
         [ProducesResponseType(typeof(Cart), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Post([FromBody]Cart cart)
         {
-            var basket = await _repository.UpdateCartAsync(cart);
+            var cartAsync = await _repository.UpdateCartAsync(cart);
 
-            return Ok(basket);
+            return Ok(cartAsync);
         }
 
         // DELETE  api/v1/cart/5

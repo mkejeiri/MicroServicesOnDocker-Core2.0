@@ -71,6 +71,8 @@ namespace MicroServicesOnDocker.Services.CartApi
                         { "cart", "Cart Api" }
                     }
                 });
+
+                //adding a Check into the pipeline to observe if any method/controller has an [Authorized] attributes on it
                 options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
 
@@ -107,7 +109,7 @@ namespace MicroServicesOnDocker.Services.CartApi
                 options.RequireHttpsMetadata = false;
                 //No secured socket layer is used here
                 options.RequireHttpsMetadata = false;
-                //basket is the name of the ApiResource("cart", "Shopping Cart Api") as registered in TokenServiceApi (config.cs),
+                //cart is the name of the ApiResource("cart", "Shopping Cart Api") as registered in TokenServiceApi (config.cs),
                 //it should be an exact match!
                 options.Audience = "cart";
             });
@@ -142,9 +144,9 @@ namespace MicroServicesOnDocker.Services.CartApi
                    c.OAuthClientSecret("");
                    c.OAuthRealm("");
                    c.OAuthAppName("Cart Swagger UI");
-                   //c.OAuthScopeSeparator(" ");
-                   //c.OAuthAdditionalQueryStringParams(new { foo = "bar" });
-                   //c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+                   c.OAuthScopeSeparator(" ");
+                   c.OAuthAdditionalQueryStringParams(null);
+                   c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                });
         }
     }
