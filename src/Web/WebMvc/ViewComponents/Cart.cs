@@ -9,9 +9,9 @@ namespace MicroServicesOnDocker.Web.WebMvc.ViewComponents
 {
     public class Cart:ViewComponent
     {
-        private readonly ICartService _cartSvc;
+        private readonly ICartService _cartService;
 
-        public Cart(ICartService cartSvc) => _cartSvc = cartSvc;
+        public Cart(ICartService cartService) => _cartService = cartService;
         public async Task<IViewComponentResult> InvokeAsync(ApplicationUser user) 
         {
 
@@ -19,7 +19,7 @@ namespace MicroServicesOnDocker.Web.WebMvc.ViewComponents
             var vm = new CartComponentViewModel();
             try
             {
-                var cart = await _cartSvc.GetCart(user);
+                var cart = await _cartService.GetCart(user);
 
                 vm.ItemsInCart = cart.Items.Count;
                 vm.TotalCost = cart.Total();

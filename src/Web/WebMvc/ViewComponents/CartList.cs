@@ -8,17 +8,15 @@ namespace MicroServicesOnDocker.Web.WebMvc.ViewComponents
 {
     public class CartList:ViewComponent
     {
-        private readonly ICartService _cartSvc;
+        private readonly ICartService _cartService;
 
-        public CartList(ICartService cartSvc) => _cartSvc = cartSvc;
+        public CartList(ICartService cartService) => _cartService = cartService;
         public async Task<IViewComponentResult> InvokeAsync(ApplicationUser user)
         {
-
-
             var vm = new Models.CartModels.Cart();
             try
             {
-                vm = await _cartSvc.GetCart(user);
+                vm = await _cartService.GetCart(user);
 
                 
                 return View(vm);
@@ -27,14 +25,9 @@ namespace MicroServicesOnDocker.Web.WebMvc.ViewComponents
             {
                 // Catch error when CartApi is in open circuit mode
                 ViewBag.IsBasketInoperative = true;
-                TempData["BasketInoperativeMsg"] = "Basket Service is inoperative, please try later on. (Business Msg Due to Circuit-Breaker)";
+                TempData["BasketInoperativeMsg"] = "Cart Service is unavailable, please try again later!. (Business Msg Due to Circuit-Breaker)";
             }
-
             return View(vm);
         }
-
-
-
-
     }
 }
