@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MicroServicesOnDocker.Services.CartApi.Infrastructure.Filters;
 using MicroServicesOnDocker.Services.CartApi.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -26,11 +28,47 @@ namespace MicroServicesOnDocker.Services.CartApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //add the custom HttpGlobalExceptionFilter to handle exceptions globally
-            services.AddMvc(options =>
-            {
-                options.Filters.Add(typeof(HttpGlobalExceptionFilter));
-            }).AddControllersAsServices();
+            ////TODO: To be checked
+            //services.AddMvcCore().AddApiExplorer();
+            //services.AddMvcCore()
+            //    .AddJsonFormatters(opt =>
+            //    {
+            //        opt.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //        opt.NullValueHandling = NullValueHandling.Ignore;
+            //        opt.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //    });
+            ////add the custom HttpGlobalExceptionFilter to handle exceptions globally
+            //services.AddMvcCore(options => { options.Filters.Add(typeof(HttpGlobalExceptionFilter)); })
+            //    .AddControllersAsServices()
+            //    //this is needed for reading the token as Json otherwise we get unauthorized even if we authenticate
+            //    .AddJsonOptions(options =>
+            //    {
+            //        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //    });
+
+            //services.AddMvc(options =>
+            //{
+            //    options.Filters.Add(typeof(HttpGlobalExceptionFilter));
+
+            //}).
+
+            //AddControllersAsServices()
+            //;
+            //AddJsonOptions(options => {
+            //    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //}).
+
+            services.AddMvcCore(
+                    options => options.Filters.Add(typeof(HttpGlobalExceptionFilter))
+                )
+                .AddJsonFormatters()
+                .AddApiExplorer();
+
+            services.Configure<CartSettings>(Configuration);
+
+            ConfigureAuthService(services);
 
             services.Configure<CartSettings>(Configuration);
             ConfigureAuthService(services);
@@ -46,6 +84,7 @@ namespace MicroServicesOnDocker.Services.CartApi
 
                 return ConnectionMultiplexer.Connect(configuration);
             });
+
             services.AddSwaggerGen(options =>
             {
                 options.DescribeAllEnumsAsStrings();

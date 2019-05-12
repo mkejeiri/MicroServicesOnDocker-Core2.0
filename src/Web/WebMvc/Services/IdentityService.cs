@@ -12,11 +12,11 @@ namespace MicroServicesOnDocker.Web.WebMvc.Services
         {
             if (principal is ClaimsPrincipal claims)
             {
-                var user = new ApplicationUser()
-                {
-                    Email = claims.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value ?? "",
-                    Id = claims.Claims.FirstOrDefault(x => x.Type == "sub")?.Value ?? "",
-                };
+                //var user = new ApplicationUser()
+                //{
+                //    Email = claims.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value ?? "",
+                //    Id = claims.Claims.FirstOrDefault(x => x.Type == "sub")?.Value ?? "",
+                //};
 
                 return new ApplicationUser
                 {

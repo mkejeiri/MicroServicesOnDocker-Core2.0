@@ -91,7 +91,7 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
                         ProductName = productDetails.Name,
                         PictureUrl = productDetails.PictureUri,
                         UnitPrice = productDetails.Price,
-                        ProductId = productDetails.Id
+                        ProductId = productDetails.Id.Value 
                     };
                     await _cartService.AddItemToCart(user, product);
                 }

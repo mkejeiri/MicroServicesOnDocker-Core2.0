@@ -6,6 +6,7 @@ using MicroServicesOnDocker.Web.WebMvc.Models.CartModels;
 
 namespace MicroServicesOnDocker.Web.WebMvc.Services
 {
+    //this will send request to cartApi to fetch a user cart/basket
     public interface ICartService
     {
         Task<Cart> GetCart(ApplicationUser user);

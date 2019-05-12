@@ -55,7 +55,7 @@ namespace MicroServicesOnDocker.Web.WebMvc.Services
 
             await UpdateCart(cart);
         }
-
+        //called after the order is completed to clean the cart/Basket
         public async Task ClearCart(ApplicationUser user)
         {
             var token = await GetUserTokenAsync();

@@ -13,6 +13,7 @@ services:
          - ASPNETCORE_ENVIRONMENT=Development
          - CatalogUrl=http://catalog
          - IdentityUrl=http://10.0.75.1:5300
+         - CartUrl=http://cart
       container_name: webshop
       ports:
          - "5200:80"
@@ -21,6 +22,7 @@ services:
       depends_on:
          - catalog
          - tokenserver
+         - cart
    catalog:
       build:
          context: .\src\Services\productCatalogApi
