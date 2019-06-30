@@ -99,7 +99,9 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
                         int orderId = await _orderSvc.CreateOrder(order);
                         //_logger.LogDebug("User {userName} finished order processing  of {orderId}.", order.UserName, order.OrderId);
 
-                        await _cartSvc.ClearCart(user);
+                        //done through the bus
+                        //await _cartSvc.ClearCart(user);
+
                         return RedirectToAction("Complete", new { id = orderId, userName = user.UserName });
                     }
 

@@ -13,7 +13,7 @@ services:
       environment:
          - ASPNETCORE_ENVIRONMENT=Development
          - CatalogUrl=http://catalog
-         - IdentityUrl=http://10.0.75.1:5300
+         - IdentityUrl=http://tokenserver
          - CartUrl=http://cart
          - CartUrl=http://order
       container_name: webshop
@@ -115,10 +115,23 @@ services:
       depends_on:
          - mssqlserver
          - tokenserver
+         - rabbitmq
    cart.data:
       image: redis
       ports:
          - "6377:6379"
       container_name: rediscontainer
+      networks:
+         - backend
+   rabbitmq:
+      image: rabbitmq:3-management
+      ports:
+         - "15672:15672"
+         - "5672:5672"
+         - "5671:5671"
+      container_name: rabbitmq
+      hostname: rabbitmq
+      volumes:
+         - ~/rabbitmq:/var/lib/rabbitmq/mnesia 
       networks:
          - backend

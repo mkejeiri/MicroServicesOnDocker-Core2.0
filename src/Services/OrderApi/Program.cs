@@ -24,7 +24,7 @@ namespace MicroServicesOnDocker.Services.OrderApi
                 {
 
                     var context = services.GetRequiredService<OrdersContext>();
-                    SeedData.EnsureCreated(context);
+                    MigrateDatabase.EnsureCreated(context);
                 }
                 catch (Exception ex)
                 {

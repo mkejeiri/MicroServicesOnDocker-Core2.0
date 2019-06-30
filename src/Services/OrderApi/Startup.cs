@@ -2,20 +2,27 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Threading;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using MassTransit;
+using MassTransit.RabbitMqTransport.Topology.Entities;
+using MassTransit.Util;
 using MicroServicesOnDocker.Services.OrderApi.Data;
 using MicroServicesOnDocker.Services.OrderApi.Infrastructure.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite.Internal.IISUrlRewrite;
+using Microsoft.Data.Edm.Library.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using RabbitMQ.Client;
 using Swashbuckle.AspNetCore.Swagger;
 namespace MicroServicesOnDocker.Services.OrderApi
 {
@@ -24,6 +31,7 @@ namespace MicroServicesOnDocker.Services.OrderApi
 
         // private readonly string _connectionString;
         ILogger _logger;
+        private IContainer ApplicationContainer;
 
         private string _connectionString;
         //private string _connectionString;
@@ -52,8 +60,11 @@ namespace MicroServicesOnDocker.Services.OrderApi
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        //this method should return an IServiceProvider which wrap the AutoFac container
+        //public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            services.Configure<OrderSettings>(Configuration);
             services.AddMvcCore(
                     options => options.Filters.Add(typeof(HttpGlobalExceptionFilter))
                 )
@@ -79,7 +90,7 @@ namespace MicroServicesOnDocker.Services.OrderApi
             //        ServiceLifetime.Scoped  //Showing explicitly that the DbContext is shared across the HTTP request scope (graph of objects started in the HTTP request)
             //);
 
-            services.Configure<OrderSettings>(Configuration);
+            
 
             //WaitForDBInit(_connectionString);
 
@@ -99,10 +110,12 @@ namespace MicroServicesOnDocker.Services.OrderApi
 
             //var connectionString = $"Server={hostname};Database={database};User ID=sa;Password={password};";
 
-            var connectionString = Configuration["ConnectionString"];
+            //var connectionString = Configuration["ConnectionString"];
+
+            var settings = services.BuildServiceProvider().GetRequiredService<IOptions<OrderSettings>>().Value;
             services.AddDbContext<OrdersContext>(options =>
             {
-                options.UseSqlServer(connectionString,
+                options.UseSqlServer(settings.ConnectionString,
                     sqlServerOptionsAction: sqlOptions =>
                     {
                         sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
@@ -151,11 +164,36 @@ namespace MicroServicesOnDocker.Services.OrderApi
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
+                    b => b.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());
             });
+
+            //1 - create an autofac container to wire up IBusControl, IBus, IPublishEndpoint as singleton
+            var builder = new ContainerBuilder();
+            builder.Register(c => {
+                return Bus.Factory.CreateUsingRabbitMq(rmq =>
+                {
+                    //rabbitmq://rmqcontainer: is the name of our docker container
+                    rmq.Host(new Uri("rabbitmq://rabbitmq"), "/", h =>
+                    {
+                        h.Username("guest");
+                        h.Password("guest");
+                    });
+                    rmq.ExchangeType = ExchangeType.Fanout; //we don"t specified header or anything we are sending info to everyone.
+                });
+            }).As<IBusControl>()
+                .As<IBus>()
+                .As<IPublishEndpoint>()
+                .SingleInstance();
+            //we are handing over the services to the container, AutoFac will take over from the default IServiceCollection DI 
+            builder.Populate(services);
+
+
+            // 2- assign applicationContainer to autofac container
+            ApplicationContainer = builder.Build();
+            return new AutofacServiceProvider(ApplicationContainer);
         }
 
        
@@ -205,7 +243,7 @@ namespace MicroServicesOnDocker.Services.OrderApi
         //}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, OrdersContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env/*, OrdersContext context*/, IApplicationLifetime lifetime)
         {
             if (env.IsDevelopment())
             {
@@ -222,7 +260,7 @@ namespace MicroServicesOnDocker.Services.OrderApi
 
             //app.UseStaticFiles();
             //this ensure migration are applied
-            context.Database.Migrate();
+            //context.Database.Migrate();
             app.UseCors("CorsPolicy");
             app.UseMvcWithDefaultRoute();
 
@@ -248,6 +286,11 @@ namespace MicroServicesOnDocker.Services.OrderApi
                     name: "default",
                     template: "{controller}/{action}/{id?}");
             });
+            //4- Start the bus here
+            var bus = ApplicationContainer.Resolve<IBusControl>();
+            var bushandle = TaskUtil.Await(() => bus.StartAsync());
+            //5 specify when the life of the bus stops => its stops when applciation stops 
+            lifetime.ApplicationStopping.Register(() => bushandle.Stop());
         }
     }
 }

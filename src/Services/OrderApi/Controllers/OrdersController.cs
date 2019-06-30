@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using MassTransit;
 using MicroServicesOnDocker.Services.OrderApi.Data;
+using MicroServicesOnDocker.Services.common.Messaging;
 using MicroServicesOnDocker.Services.OrderApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +21,14 @@ namespace MicroServicesOnDocker.Services.OrderApi.Controllers
 
         private readonly OrdersContext _ordersContext;
         private readonly IOptionsSnapshot<OrderSettings> _settings;
+        private IBus _bus;
 
 
         private readonly ILogger<OrdersController> _logger;
 
-        public OrdersController(OrdersContext ordersContext, ILogger<OrdersController> logger, IOptionsSnapshot<OrderSettings> settings)
+        public OrdersController(OrdersContext ordersContext, ILogger<OrdersController> logger, IOptionsSnapshot<OrderSettings> settings, IBus bus)
         {
+            _bus = bus;
             _settings = settings;
             // _ordersContext = ordersContext;
             _ordersContext = ordersContext ?? throw new ArgumentNullException(nameof(ordersContext));
@@ -58,11 +62,15 @@ namespace MicroServicesOnDocker.Services.OrderApi.Controllers
             _ordersContext.Orders.Add(order);
             _ordersContext.OrderItems.AddRange(order.OrderItems);
 
+            //publishing into the bus
+            _bus.Publish<OrderCompletedEvent>(new {order.buyerId}).Wait();
+
             _logger.LogInformation(" Order added to context");
             _logger.LogInformation(" Saving........");
             try
             {
                 await _ordersContext.SaveChangesAsync();
+
                 return CreatedAtRoute("GetOrder", new { id = order.OrderId }, order);
             }
             catch (DbUpdateException ex)

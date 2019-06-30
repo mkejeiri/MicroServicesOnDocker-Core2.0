@@ -10,7 +10,7 @@ namespace MicroServicesOnDocker.Services.OrderApi.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderId { get; set; }
-
+        public string buyerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime OrderDate { get; set; }

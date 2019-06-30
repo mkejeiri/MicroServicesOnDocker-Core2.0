@@ -309,3 +309,39 @@ is there to make sure that we get a connection before the migration are executed
 
 after migrations:
 use  OrdersDb; <-- is case sensitive
+
+docker rmi --force shoes/cart cartimage microservicesondocker_webmvc microservicesondocker_catalog
+
+#Add migration from nuget console, make sure you are in correct project
+add-migration Initial -output Data/Migrations
+
+
+#Service bus rabbitmq
+for IOC autofac see startup.cs in the OrderApi
+Create an event sourcing in Messaging/OrderCompletedEvent to allow orderApi to publish an event when an order is made
+in docker-compose file we need to specify the network as the same as the pulisher and consummers network 
+otherwise it wouldn't work. here both publisher and consumer microservices have the front and backend network!!!
+also the volumes should specified as ~/rabbitmq:/var/lib/rabbitmq/mnesia   with mnesia something has to do with erlang!!!
+we should also add the rabbitmq service in the dependencies in orderApi section
+
+rabbitmq:
+     image: rabbitmq:3-management
+     container_name: rabbitmq
+     hostname: myrabbitmq
+     ports:
+        - "15672:15672"
+        - "5672:5672"
+        - "5671:5671"
+     volumes:
+        - ~/rabbitmq:/var/lib/rabbitmq/mnesia   
+     networks:
+       - backend 
+
+
+#rebuid all image
+docker-compose build
+docker-compose up cart rabbitmq mssqlserver
+and go to localhost:15672
+
+#start also other services 
+docker-compose up order tokenserver cart catalog webmvc

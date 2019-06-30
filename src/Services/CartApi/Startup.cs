@@ -1,5 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using MassTransit;
+using MassTransit.Util;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MicroServicesOnDocker.Services.CartApi.Infrastructure.Filters;
+using MicroServicesOnDocker.Services.CartApi.Messaging.Consumer;
 using MicroServicesOnDocker.Services.CartApi.Model;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
@@ -16,6 +22,8 @@ namespace MicroServicesOnDocker.Services.CartApi
 {
     public class Startup
     {
+        private IContainer ApplicationContainer;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -24,7 +32,7 @@ namespace MicroServicesOnDocker.Services.CartApi
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             ////TODO: To be checked
             //services.AddMvcCore().AddApiExplorer();
@@ -115,7 +123,7 @@ namespace MicroServicesOnDocker.Services.CartApi
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.AllowAnyOrigin()
+                    b => b.AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials());
@@ -123,6 +131,45 @@ namespace MicroServicesOnDocker.Services.CartApi
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ICartRepository, RedisCartRepository>();
             //   services.AddTransient<IIdentityService, IdentityService>();
+
+            var builder = new ContainerBuilder();
+
+            // register a specific consumer
+            builder.RegisterType<OrderCompletedEventConsumer>();
+
+            builder.Register(context =>
+                {
+                    var busControl = Bus.Factory.CreateUsingRabbitMq(cfg =>
+                    {
+
+                        //rabbitmq://rmqcontainer: is the name of our docker container
+                        var host = cfg.Host(new Uri("rabbitmq://rabbitmq/"), "/", h =>
+                        {
+                            h.Username("guest");
+                            h.Password("guest");
+                        });
+
+                        //Receiving endpoint
+                        // https://stackoverflow.com/questions/39573721/disable-round-robin-pattern-and-use-fanout-on-masstransit
+                        cfg.ReceiveEndpoint(host, "MicroServicesOnDocker" + Guid.NewGuid().ToString(), e =>
+                        {
+                            //context has the instances of all  the consumer classes such as OrderCompletedEventConsumer and others
+                            e.LoadFrom(context);
+
+                        });
+                    });
+
+                    return busControl;
+                })
+                .SingleInstance()
+                .As<IBusControl>()
+                .As<IBus>();
+
+            //hand-over the services to Autofac container
+            builder.Populate(services);
+            ApplicationContainer = builder.Build();
+
+            return new AutofacServiceProvider(ApplicationContainer);
         }
 
         //Asp.net core has already a  JwtHandler middleware to handle JWT token
@@ -153,7 +200,7 @@ namespace MicroServicesOnDocker.Services.CartApi
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime lifetime)
         {
             if (env.IsDevelopment())
             {
@@ -184,6 +231,11 @@ namespace MicroServicesOnDocker.Services.CartApi
                    c.OAuthAdditionalQueryStringParams(null);
                    c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                });
+
+            //to startup the bus and to stop it when the app is dead 
+            var bus = ApplicationContainer.Resolve<IBusControl>();
+            var bushandle = TaskUtil.Await(() => bus.StartAsync());
+            lifetime.ApplicationStopping.Register(() => bushandle.Stop());
         }
     }
 }
