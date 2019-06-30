@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace MicroServicesOnDocker.Services.CartApi.Model
+namespace MicroServicesOnDocker.Services.CartApi.Model 
 {
     public class RedisCartRepository : ICartRepository
     {
@@ -18,7 +18,7 @@ namespace MicroServicesOnDocker.Services.CartApi.Model
         {
             _logger = loggerFactory.CreateLogger<RedisCartRepository>();
             _redis = redis;
-            _database = redis.GetDatabase();
+            _database = _redis.GetDatabase();
         }
 
         public async Task<bool> DeleteCartAsync(string cardId)

@@ -8,6 +8,7 @@ using MicroServicesOnDocker.Services.CartApi.Model;
 namespace MicroServicesOnDocker.Services.CartApi.Controllers
 {
     [Authorize]
+    //v1 is the version of this Api as we might have different versions 
     [Route("api/v1/[controller]")]
     public class CartController : Controller
     {

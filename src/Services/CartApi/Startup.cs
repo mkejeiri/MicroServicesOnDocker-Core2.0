@@ -9,8 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MicroServicesOnDocker.Services.CartApi.Infrastructure.Filters;
 using MicroServicesOnDocker.Services.CartApi.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -63,12 +61,11 @@ namespace MicroServicesOnDocker.Services.CartApi
             services.AddMvcCore(
                     options => options.Filters.Add(typeof(HttpGlobalExceptionFilter))
                 )
+                //allow Cart Api to properly formed JSON data for the token Api
+                //and get to know the token 
                 .AddJsonFormatters()
-                .AddApiExplorer();
-
-            services.Configure<CartSettings>(Configuration);
-
-            ConfigureAuthService(services);
+                .AddApiExplorer()
+                .AddControllersAsServices();
 
             services.Configure<CartSettings>(Configuration);
             ConfigureAuthService(services);
@@ -125,7 +122,7 @@ namespace MicroServicesOnDocker.Services.CartApi
             });
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ICartRepository, RedisCartRepository>();
-         //   services.AddTransient<IIdentityService, IdentityService>();
+            //   services.AddTransient<IIdentityService, IdentityService>();
         }
 
         //Asp.net core has already a  JwtHandler middleware to handle JWT token
@@ -180,10 +177,10 @@ namespace MicroServicesOnDocker.Services.CartApi
                    //c.ConfigureOAuth2("cartswaggerui", "", "", "Cart Swagger UI");
 
                    c.OAuthClientId("cartswaggerui");
-                   c.OAuthClientSecret("");
-                   c.OAuthRealm("");
+                   c.OAuthClientSecret(null);
+                   c.OAuthRealm(null);
                    c.OAuthAppName("Cart Swagger UI");
-                   c.OAuthScopeSeparator(" ");
+                   c.OAuthScopeSeparator(null);
                    c.OAuthAdditionalQueryStringParams(null);
                    c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                });

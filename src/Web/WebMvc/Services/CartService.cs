@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MicroServicesOnDocker.Web.WebMvc.Infrastructure;
 using MicroServicesOnDocker.Web.WebMvc.Models;
 using MicroServicesOnDocker.Web.WebMvc.Models.CartModels;
+using MicroServicesOnDocker.Web.WebMvc.Models.OrderModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -130,5 +131,29 @@ namespace MicroServicesOnDocker.Web.WebMvc.Services
             return await context.GetTokenAsync("access_token");
           
         }
+
+        public Order MapCartToOrder(Cart cart)
+        {
+            var order = new Order();
+            order.OrderTotal = 0;
+
+            cart.Items.ForEach(x =>
+            {
+                order.OrderItems.Add(new OrderItem()
+                {
+                    ProductId = x.ProductId,//int.Parse(x.ProductId),
+
+                    PictureUrl = x.PictureUrl,
+                    ProductName = x.ProductName,
+                    Units = x.Quantity,
+                    UnitPrice = x.UnitPrice
+                });
+                order.OrderTotal += (x.Quantity * x.UnitPrice);
+            });
+
+            return order;
+        }
+
+
     }
 }

@@ -42,6 +42,7 @@ namespace MicroServicesOnDocker.Web.WebMvc
 
             services.AddTransient<IIdentityService<ApplicationUser>, IdentityService>();
             services.AddTransient<ICartService, CartService>();
+            services.AddTransient<IOrderService, OrderService>();
 
             //double check
             services.AddSingleton<ILogger<IHttpClient>, Logger<IHttpClient>>();
@@ -88,6 +89,7 @@ namespace MicroServicesOnDocker.Web.WebMvc
                     //    RoleClaimType = "role"
                     //};
                     options.Scope.Add("cart");
+                    options.Scope.Add("order");
                 });
         }
 

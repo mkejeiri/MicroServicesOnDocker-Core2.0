@@ -53,17 +53,16 @@ namespace MicroServicesOnDocker.Web.WebMvc.Controllers
         public async Task<IActionResult> Index(Dictionary<string, int> quantities, string action)
         {
 
+            //if (action == "[ Checkout ]")
+            //{
+            //   // var order = _cartService.MapBasketToOrder(basket);
+            //    return RedirectToAction("Create", "Order");
+            //}
             try
             {
                 var user = _identityService.Get(HttpContext.User);
                 var cart = await _cartService.SetQuantities(user, quantities);
                 var vm = await _cartService.UpdateCart(cart);
-
-                //if (action == "[ Checkout ]")
-                //{
-                //    var order = _cartService.MapBasketToOrder(basket);
-                //    return RedirectToAction("Create", "Order");
-                //}
             }
             //polly nuget package BrokenCircuitException class
             //to let know the user that the cartApi is not available and should try again later

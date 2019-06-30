@@ -277,4 +277,35 @@ need to allow only swagger and webmvc client.
 	b- we should also add swagger UI in the list of client in the tokenServiceApi config.cs
 
 
+This an example of docker yml file where we keep a data in separate volume :  odata:/var/lib/mysql and also using 
+order.server:
+    container_name: ${MYSQL_SERVER_NAME} <-Env variable from .env file
+    image: mysql/mysql-server:5.7 <- this will be pulled down from docker hub if not locally available.
+    restart: always
+    volumes:
+      - odata:/var/lib/mysql <-- this volume will keep the data even if the container is destroyed.
+    ports:
+      - "3406:3306" 
+	environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: !!str yes <-- Mysql admin tool pass
+         
+    env_file:
+      - secrets.env   <-- reading from secrets.env all credentials and not to push to source control
+    networks:
+      - backend
 
+The ENV variables and files allow us to changes settings without recompiling the docker images. 
+The ENV's are recongnized automatically by docker compose file
+
+f switch to select a specific yml file and buid the required containers
+docker-compose -f .\docker-compose.OrderApi.yml build
+docker-compose -f .\docker-compose.OrderApi.yml up order.server
+
+docker exec -it mysqldb mysql -u root -p and then you're prompted for a [password] <-- [password]  is received after starting up the container
+show databases
+
+we have to make sure that mysql table are created via migration before we reach the end of the pipeline, WaitForDBInit method in the startup class 
+is there to make sure that we get a connection before the migration are executed.
+
+after migrations:
+use  OrdersDb; <-- is case sensitive
