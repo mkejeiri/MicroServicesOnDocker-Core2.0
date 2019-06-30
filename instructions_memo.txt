@@ -340,6 +340,8 @@ rabbitmq:
 
 #rebuid all image
 docker-compose build
+
+# !!!! to be able to run rabbitmq we need to share a drive which required a windows user pass, so we need to run from password authenticated user !!!! 
 docker-compose up cart rabbitmq mssqlserver
 and go to localhost:15672
 
