@@ -231,7 +231,7 @@ application binaries, and files, and libraries and inside these layers where all
 application artifacts (binaries and files, and libraries...) lives, a config file has the instructions on how to run the image as a container. 
 i.e. how to set the environment, which ports to expose, and how to start the packaged app.
 
-![pic](images/figure10.PNG)
+![pic](images/figure10.png)
 
 it's normal to start multiple containers per image. Each container gets its own thin writable layer where it stores changes and each one of those
 can be linked back to a single image. we get the image ID by running a cryptographic algorithm over the contents of a layer
@@ -243,7 +243,7 @@ matching things up on the host hard for us but not for the Docker engine (it kee
 
 ### Containerizing an App
 
-![pic](images/figure11.PNG)
+![pic](images/figure11.png)
 
 
 **Dockerfile**: a good practice to name Dockerfile, all one word and put it the root folder of the app. is a list of instructions on how to build an image with an app inside. it's also going to document the app (description app to the rest of the team).
@@ -299,7 +299,7 @@ docker container rm -f $(docker container ls -aq)
 Only include code needed in the **build context**, because build context (where the code is located, e.g. /src) it gets read recursively, 
 everything in build context get sent to the Daemon even subfiles that we don't need, a lot resources waste especially if Daemon's across the network.
 
-![pic](images/figure12.PNG)
+![pic](images/figure12.png)
 
 It is possible to have clients talking to remote **Daemons** over the network. a **build context** can be a remote Git repo for instance.
 
