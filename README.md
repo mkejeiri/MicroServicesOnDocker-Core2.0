@@ -23,7 +23,7 @@ sudo usermod -aG docker <username>
 
 ### Architecture and Theory
 - container : Isolated area of an OS with resource usage limits applied
-[Figure 1]
+![pic](~/images/figure1.PNG)
 
 To build a container, we leverage a bunch of low-level kernel construct, hence the namespaces and control groups,are low-level kernel construct which been around for longtime in Linux remained obscure and esoteric, hard to work with
 
@@ -35,14 +35,14 @@ The Docker engine :
 1 - use the command line to create a new container
 2 - client takes the command and makes the appropriate API request to the container
 3 - engine pulls together all of the required kernel pieces and pops out  a container! 
-[Figure 2]
+![pic](~/images/figure2.PNG)
 
 **Namespaces** : are about isolation, OS carve into multiple, isolated, virtual operating systems with all of its resources, i.e high-level
 constructs with its own containerized root file system, processed tree and zero interface, users,... sharing a single kernel on a host, On the other hypervisor takes a physical machine and curves into into multiple virtual machine with their own CPU, virtual memory, virtual networking, virtual storage...
 hypervisor world : each one like a fullblown machine
 container world : each one like a Os with its secured boundery
 
-[Figure 3]
+![pic](~/images/figure3.PNG)
 
 **PID Namespace**: gives each container its own isolated process tree, unaware of any other container existance
 network : Namespace gives each container its own isolated network stack, IP's rooting tables
@@ -54,7 +54,7 @@ username space: new to Docker, lets map accounts inside the container to differe
 **Control groups (aka C-groups)**: supervises/limits the consumption of system resources. In Windows world they are called Job Objects, like containers are meant to group processes, C-groups imposes limits (amount of CPU, memory, disk IO...) on a container. 
 Namespace and Control Groups gives a workable containers in a union file system, combining read-only file systems or blocked devices, adding them on the top of the readonly (image) layer => presenting them to the system as a unified view. 
 
-[Figure 4]
+![pic](~/images/figure4.PNG)
 
 
 **The Docker engine**
@@ -63,7 +63,7 @@ Namespace and Control Groups gives a workable containers in a union file system,
 - Container D: here is the container supervised that handles execution and lifecycle operations, e.g. start, stop, pause and unpause, and 
 - OCI layer: interfaces with the kernel. 
 
-[Figure 5]
+![pic](~/images/figure5.PNG)
 
 
 **Linux Workflow**:
@@ -78,7 +78,7 @@ Namespace and Control Groups gives a workable containers in a union file system,
 Those differences are there because when MS was shipping Server 2016, at the same time Docker was refactoring into Container D and Run C 
 **OCI** = Open Containers Initiative : It contains 2 specifications: the Runtime Specification (runtime-spec) and the Image Specification (image-spec). The Runtime Specification outlines how to run a “filesystem bundle” that is unpacked on disk. At a high-level an OCI implementation would download an OCI Image then unpack that image into an OCI Runtime filesystem bundle. At this point the OCI Runtime Bundle would be run by an OCI Runtime.
 
-[Figure 6]
+![pic](~/images/figure6.PNG)
 
 **WorkFlow creating container - Linux**:
 1 - The command's docker container run (or just 'docker Run')
@@ -94,13 +94,13 @@ Those differences are there because when MS was shipping Server 2016, at the sam
 **Native Windows containers** (runs blue Win32 apps)
 NTSFS and the registry, so that we can get image layering like AUFS and overlay AUFS on Linux. Remember, a union file system or a union mount system with some copy on right is an integral part of a Docker container.
 
-[figure7] 
+![pic](~/images/figure7.PNG)
 
 ported a Docker client and daemon into Windows the same API and the same user experience. We didn't get integration with swarm and other docker pieces, low level windows diverges from Linux, we got Compute Service layer.
 
 **Windows** has developed a bunch of interdependencies, so apps need certain systems services, DLLs, to be available, and in turn, some of those rely on others, and if they're not there, things break, and it's not different for containers. Every container needs these processes. When we start a Windows container, it gets this process called SMSS (vs linux init process).
 
-[figure8]
+![pic](~/images/figure8.PNG)
 **Native Windows containers** can only run native Win32 apps, and Hyper-V containers Windows actually spins up a lightweight Hyper-V VM in the background (less performance overhead than a full VM), but we still get a full OS, so it's not using the host's kernel, instead a separate isolated kernel, and then we run your container on that. 
 **The native containers** spin up, directly on the host, leverage its kernel, and isolation is done with Namespaces, while Hyper-V containers totally isolated kernel, and it can be Windows or Linux inside it's always one container per VM. 
  
@@ -109,7 +109,7 @@ It becomes a deployment decision, we develop our containers in Windows, and deci
 
 ### Image
 An image is a ready-only template for creating application containers. images are build-time constructs and containers are their run-time constructs (container = running image, image = a stopped container). An image is set of files and a manifest (i.e. JSON file explaining how it images artifacts fits together) which includes the app files and the library files required by an app to run and (ideally) just the ones it needs to run. Therefore, an image is a set of layers that are stacked on top of each others (i.e. unified file system).
-[figure9]
+![pic](~/images/figure9.PNG)
 we store images (read-only) in a registry which can be cloud or on premise. We pull them down using the docker image pull command. 
 Once on our hosts, we can start containers from them the image is read-only, for each container we create a thin writable layer and effectively lash it on top of the ready-only image. 
  
@@ -230,7 +230,9 @@ It's a config file plus a set of independent layers. And it's inside these layer
 application binaries, and files, and libraries and inside these layers where all the
 application artifacts (binaries and files, and libraries...) lives, a config file has the instructions on how to run the image as a container. 
 i.e. how to set the environment, which ports to expose, and how to start the packaged app.
-[figure 10]
+
+![pic](~/images/figure10.PNG)
+
 it's normal to start multiple containers per image. Each container gets its own thin writable layer where it stores changes and each one of those
 can be linked back to a single image. we get the image ID by running a cryptographic algorithm over the contents of a layer
 which makes the image and its layers immutable. The image ID, is a hash of the image content kept in the config file.
@@ -241,7 +243,7 @@ matching things up on the host hard for us but not for the Docker engine (it kee
 
 ### Containerizing an App
 
-[Figure 11]
+![pic](~/images/figure11.PNG)
 
 
 **Dockerfile**: a good practice to name Dockerfile, all one word and put it the root folder of the app. is a list of instructions on how to build an image with an app inside. it's also going to document the app (description app to the rest of the team).
@@ -297,7 +299,8 @@ docker container rm -f $(docker container ls -aq)
 Only include code needed in the **build context**, because build context (where the code is located, e.g. /src) it gets read recursively, 
 everything in build context get sent to the Daemon even subfiles that we don't need, a lot resources waste especially if Daemon's across the network.
 
-[Figure 12]
+![pic](~/images/figure12.PNG)
+
 It is possible to have clients talking to remote **Daemons** over the network. a **build context** can be a remote Git repo for instance.
 
 ```sh
