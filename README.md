@@ -659,6 +659,6 @@ docker run --log-driver --log-opts
 ```sh 
 #to view them and to follow them.
 docker logs <container> [--follow]
+```
 
-
-###Swarm
+### Swarm
