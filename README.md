@@ -157,21 +157,21 @@ docker history redis
 | IMAGE | CREATED | CREATED BY |SIZE|
 | ------ | ------ | ------ | ------ |
 | 01a52b3b5cd1|3 days ago|  /bin/sh -c #(nop)  CMD ["redis-server"]| 0B|   
-|<missing>|   3 days ago|  /bin/sh -c #(nop)  EXPOSE 6379|0B|   
-|<missing>|   3 days ago|  /bin/sh -c #(nop)  ENTRYPOINT ["docker-entry…|   0B|   
-|<missing>|   3 days ago|  /bin/sh -c #(nop) COPY file:df205a0ef6e6df89… |  374B| 
-|<missing>|   3 days ago|  /bin/sh -c #(nop) WORKDIR /data|  0B|   
-|<missing>|   3 days ago|  /bin/sh -c #(nop)  VOLUME [/data]|0B|   
-|<missing>|   3 days ago|  /bin/sh -c mkdir /data && chown redis:redis … |  0B|   
-|<missing>|   3 days ago|  /bin/sh -c set -eux;   savedAptMark="$(apt-m…|   24.6MB|  
-|<missing>|   3 days ago|  /bin/sh -c #(nop)  ENV REDIS_DOWNLOAD_SHA=66…|   0B|   
-|<missing>|   3 days ago|  /bin/sh -c #(nop)  ENV REDIS_DOWNLOAD_URL=ht…|   0B|   
-|<missing>|   3 days ago|  /bin/sh -c #(nop)  ENV REDIS_VERSION=5.0.6|      0B|   
-|<missing>|   2 weeks ago| /bin/sh -c set -eux;  savedAptMark="$(apt-ma…|   4.04MB|  
-|<missing>|   2 weeks ago| /bin/sh -c #(nop)  ENV GOSU_VERSION=1.11|0B|   
-|<missing>|   2 weeks ago| /bin/sh -c groupadd -r -g 999 redis && usera…|   329kB|
-|<missing>|   2 weeks ago| /bin/sh -c #(nop)  CMD ["bash"]|  0B|   
-|<missing>|   2 weeks ago| /bin/sh -c #(nop) ADD file:1901172d265456090… |  69.2MB | 
+|missing|   3 days ago|  /bin/sh -c #(nop)  EXPOSE 6379|0B|   
+|missing|   3 days ago|  /bin/sh -c #(nop)  ENTRYPOINT ["docker-entry…|   0B|   
+|missing|   3 days ago|  /bin/sh -c #(nop) COPY file:df205a0ef6e6df89… |  374B| 
+|missing|   3 days ago|  /bin/sh -c #(nop) WORKDIR /data|  0B|   
+|missing|   3 days ago|  /bin/sh -c #(nop)  VOLUME [/data]|0B|   
+|missing|   3 days ago|  /bin/sh -c mkdir /data && chown redis:redis … |  0B|   
+|missing|   3 days ago|  /bin/sh -c set -eux;   savedAptMark="$(apt-m…|   24.6MB|  
+|missing|   3 days ago|  /bin/sh -c #(nop)  ENV REDIS_DOWNLOAD_SHA=66…|   0B|   
+|missing|   3 days ago|  /bin/sh -c #(nop)  ENV REDIS_DOWNLOAD_URL=ht…|   0B|   
+|missing|   3 days ago|  /bin/sh -c #(nop)  ENV REDIS_VERSION=5.0.6|      0B|   
+|missing|   2 weeks ago| /bin/sh -c set -eux;  savedAptMark="$(apt-ma…|   4.04MB|  
+|missing|   2 weeks ago| /bin/sh -c #(nop)  ENV GOSU_VERSION=1.11|0B|   
+|missing|   2 weeks ago| /bin/sh -c groupadd -r -g 999 redis && usera…|   329kB|
+|missing|   2 weeks ago| /bin/sh -c #(nop)  CMD ["bash"]|  0B|   
+|missing|   2 weeks ago| /bin/sh -c #(nop) ADD file:1901172d265456090… |  69.2MB | 
 
 **Note**: IMAGE column gives `missing` for some images because the `command's older than the new storage model` so it gets a bit confused.
 Operations (e.g groupadd -r -g 999 redis && usera…) that have 0B aren't layer most of the case is just config the rest are added layers.
