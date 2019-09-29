@@ -152,6 +152,127 @@ From a kernel perspective, it is totally possible to be running a Centos/suze/mi
 all images are stored in /var/lib/docker/overlay2 (sudo ls -l /var/lib/docker/overlay2)
 ```sh
 docker history redis
+
+
+[
+    {
+        "Id": "sha256:01a52b3b5cd14dffaff0908e242d11275a682cc8fe3906a0a7ec6f36fbe001f5",
+        "RepoTags": [
+            "redis:latest"
+        ],
+        "RepoDigests": [
+            "redis@sha256:cb379e1a076fcd3d3f09e10d7b47ca631fb98fb33149ab559fa02c1b11436345"
+        ],
+        "Parent": "",
+        "Comment": "",
+        "Created": "2019-09-25T22:06:05.071477029Z",
+        "Container": "faa4f573d251db6418993e52addb303289e1fb2e2f3766cb5290c878d069e6b9",
+        "ContainerConfig": {
+            "Hostname": "faa4f573d251",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GOSU_VERSION=1.11",
+                "REDIS_VERSION=5.0.6",
+                "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-5.0.6.tar.gz",
+                "REDIS_DOWNLOAD_SHA=6624841267e142c5d5d5be292d705f8fb6070677687c5aad1645421a936d22b3"
+            ],
+            "Cmd": [
+                "/bin/sh",
+                "-c",
+                "#(nop) ",
+                "CMD [\"redis-server\"]"
+            ],
+            "ArgsEscaped": true,
+            "Image": "sha256:2f30700f0e3c59583b6745aaaf3a67037465a9c8c88070b2b75829fd03681489",
+            "Volumes": {
+                "/data": {}
+            },
+            "WorkingDir": "/data",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "DockerVersion": "18.06.1-ce",
+        "Author": "",
+        "Config": {
+            "Hostname": "",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GOSU_VERSION=1.11",
+                "REDIS_VERSION=5.0.6",
+                "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-5.0.6.tar.gz",
+                "REDIS_DOWNLOAD_SHA=6624841267e142c5d5d5be292d705f8fb6070677687c5aad1645421a936d22b3"
+            ],
+            "Cmd": [
+                "redis-server"
+            ],
+            "ArgsEscaped": true,
+            "Image": "sha256:2f30700f0e3c59583b6745aaaf3a67037465a9c8c88070b2b75829fd03681489",
+            "Volumes": {
+                "/data": {}
+            },
+            "WorkingDir": "/data",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": null
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 98193890,
+        "VirtualSize": 98193890,
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/ed128c90ebe917e393f51b3695b852e02b4bb44b1ca392bd1c6467517ab74985/diff:/var/lib/docker/overlay2/debc32238a435bab9114a13f4bc898012b0d5d217eab1e2ad8f1a284cf02eb92/diff:/var/lib/docker/overlay2/ff2291be442447a93208fb11df7a36cd0d41eb78cd0235e8a2171c99f086b8e2/diff:/var/lib/docker/overlay2/fb4ec09da0171baeb0bc3bcae308641f5c81884069e86db3998ce2fbb4c71025/diff:/var/lib/docker/overlay2/8cabe298f7c2f84a8eaef50e6b4f649df0af0aec85c3b4bc61254b5ce6443e9d/diff",
+                "MergedDir": "/var/lib/docker/overlay2/8450251ba5912d25eceba361ff07fe75f0f6eabfb15bb5a1ed30ddc1b36b80f1/merged",
+                "UpperDir": "/var/lib/docker/overlay2/8450251ba5912d25eceba361ff07fe75f0f6eabfb15bb5a1ed30ddc1b36b80f1/diff",
+                "WorkDir": "/var/lib/docker/overlay2/8450251ba5912d25eceba361ff07fe75f0f6eabfb15bb5a1ed30ddc1b36b80f1/work"
+            },
+            "Name": "overlay2"
+        },
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:2db44bce66cde56fca25aeeb7d09dc924b748e3adfe58c9cc3eb2bd2f68a1b68",
+                "sha256:96550adba4f99ce4ad1e19a0a8a627cb420e762763b852e945d7542d30731d59",
+                "sha256:a0e3cc85530d65d60bd1dab00a30bf870924aea38ef3ed72edc127c550923334",
+                "sha256:c7fcc133516e8d3b7b8ad20b640915739956b96920e6a8858afad554faf7bd13",
+                "sha256:68ffe58b3e9478064c495369565ed4294f5d199d5bd0d1610258ecc2a9bfef37",
+                "sha256:6f3fa587ec88f4ae2fade5debdeb0c6d48bc446c4f8702b9824dcf4bee25e95f"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "0001-01-01T00:00:00Z"
+        }
+    }
+]
+
+
 ```
 
 | IMAGE | CREATED | CREATED BY |SIZE|
