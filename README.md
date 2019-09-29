@@ -156,7 +156,7 @@ docker history redis
 
 | IMAGE | CREATED | CREATED BY |SIZE|
 | ------ | ------ | ------ | ------ |
-01a52b3b5cd1|3 days ago|  /bin/sh -c #(nop)  CMD ["redis-server"]| 0B|   
+| 01a52b3b5cd1|3 days ago|  /bin/sh -c #(nop)  CMD ["redis-server"]| 0B|   
 |<missing>|   3 days ago|  /bin/sh -c #(nop)  EXPOSE 6379|0B|   
 |<missing>|   3 days ago|  /bin/sh -c #(nop)  ENTRYPOINT ["docker-entry…|   0B|   
 |<missing>|   3 days ago|  /bin/sh -c #(nop) COPY file:df205a0ef6e6df89… |  374B| 
@@ -173,7 +173,7 @@ docker history redis
 |<missing>|   2 weeks ago| /bin/sh -c #(nop)  CMD ["bash"]|  0B|   
 |<missing>|   2 weeks ago| /bin/sh -c #(nop) ADD file:1901172d265456090… |  69.2MB | 
 
-**Note**: IMAGE column gives 'missing' for some images because the command's older than the new storage model so it gets a bit confused.
+**Note**: IMAGE column gives `missing` for some images because the `command's older than the new storage model` so it gets a bit confused.
 Operations (e.g groupadd -r -g 999 redis && usera…) that have 0B aren't layer most of the case is just config the rest are added layers.
 
 ```sh
