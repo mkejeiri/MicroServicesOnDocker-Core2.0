@@ -328,8 +328,9 @@ The structure is a follow : ` REGISTRY/REPO/IMAGE(TAG)`
 **In windows world** images are stored in ` c:\programData\docker\windowsfilrer` 
 **In linux world** images are stored in ` /var/lib/docker/<storage-driver> (<storage-driver>`  = {Aufs,overlay2,... })
 
-It will pull all images that matches the architecture.
+
 ```sh
+#It will pull all images that matches the architecture.
 docker image pull docker.io/redis -a 
 ```
 
@@ -658,3 +659,6 @@ docker run --log-driver --log-opts
 ```sh 
 #to view them and to follow them.
 docker logs <container> [--follow]
+
+
+###Swarm
