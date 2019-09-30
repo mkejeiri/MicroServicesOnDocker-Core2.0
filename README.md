@@ -66,7 +66,7 @@ Namespace and Control Groups gives a workable containers in a union file system,
 **The Docker engine**
 - Docker client: execute commands like Docker Container Run (or just 'docker Run')
 - Daemon: implementing the rest API
-- Container D: here is the container supervised that handles execution and lifecycle operations, e.g. start, stop, pause and unpause, and 
+- Container D: is the container that supervises and handles execution and lifecycle operations, e.g. start, stop, pause and unpause, and 
 - OCI layer: interfaces with the kernel. 
 
 ![pic](images/figure5.PNG)
