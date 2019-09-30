@@ -630,7 +630,7 @@ docker container rm -f $(docker container ls -aq)
 docker run -it alpine sh
 ```
 Here the **app** is the **sh** (the **shell**), when exiting the sh we kill the **container** but if we use  ctrl+p ctrl+q we  get out of the container without killing the shell, so `container is still running`.
->>Every image has a default process that it'll run if we don't tell it something different at run-time (inspect image an check out "Cmd": ["/bin/sh"] in config file). 
+>>Every image has a default process that it'll run if we don't tell it something different at run-time (inspect image an check out **"Cmd": ["/bin/sh"]** in config file). 
 
 ```sh
 #So if we inspect the alpine image
@@ -647,7 +647,7 @@ Anything that we tell "it" to run at run-time is going to overwrite the default 
 ### Logging
 - Two types of logs:
     - daemon logs : are the logs from the Docker Daemon or the Docker engine,
-		modern Linux systems use systemd, in those instances, daemon logs get sent to journald (journalctl -u docker.service) if not check var/log/messages. On Windows check AppData/Local/Docker and also Windows event viewer.
+		modern Linux systems use systemd, in those instances, daemon logs get sent to journald (journalctl -u docker.service) if not check var/log/messages. On Windows check **AppData/Local/Docker**and also **Windows event viewer**.
     - container (aka app) logs: Docker's hoping that apps log to STDOUT and STDERR. i.e. PID1 process in every container is getting captured and it's getting forwarded  we need to design the containers so the apps are running as PID1 and logging to STDOUT and STDERR, we could also logging to a file though, it is possible to do sim links and shunt rights to those files to STDOUT and STDERR; maybe mount a volume to those locations so that you can access them outside of the container and make sure they persist when the container's gone. Enterprise edition has supported the logging drivers-plugins that integrate container logging with existing logging solutions like Syslog and Gelf and Splunk,     => forward container logs to whatever external logging solution.
 
 
@@ -662,3 +662,50 @@ docker logs <container> [--follow]
 ```
 
 ### Swarm
+
+A Swarm is a secure cluster of Docker nodes (i.e. giant Docker node), we can run work against it (vs individual nodes) in Native Swarm or Kubernetes mode. It comes in two parts:
+- The Secure cluster: 
+									- It shipped with Docker Enterprise Edition and at the highest level, it's a cluster of Docker nodes( containered and the OCI, including native support for Kubernetes)
+									- The Secure cluster: managers and workers, communicating through Mutual TLS (encrypted network) where workers and managers mutually authenticate each other.
+									- It has an encrypted cluster stores, which gets automatically distributed to all managers, we  use labels to tag nodes and customize the cluster
+									- It also does all of the workload balancing.
+
+![pic](images/figure14.png)	
+	
+- The Orchestrator: not quite as strategic,Swarm orchestration will give way to Kubernetes, we can run two types of work on the cluster; Native Swarm work, and Kubernetes. 
+ 
+ Docker is a set of bundled packaged tools in a slick API such as  Mobi engine and containered, runC and SwarmKit.
+
+
+SwarmKit: to build an open source all of the small component  tooling, it also got integrated into the Docker engine, but still available as a separate toolkit.
+the goal is to allow to two types of config: docker single-engine mode (one node), and Swarm mode (cluster mode).
+![pic](images/figure15.png)	
+
+```sh 
+#to create a swarm
+docker swarm init
+```
+Docker switches to Swarm mode, we get the first manager of the Swarm which also a leader. It's the root CA of the Swarm.
+
+```sh 
+#we can also configure external CAs 
+docker swarm init --external CA
+```
+Swarm out of the box  issued itself a client certificate, built a secure cluster store, which's ETD and it get distributed to every other manager in the Swarm including a default certificate rotation policy and created a set of cryptographic join tokens; one for joining new managers, and another for joining new workers.
+
+```sh 
+#to add new node to the swarm (new manager)
+docker swarm join
+```
+![pic](images/figure16.png)	
+
+Every Swarm has a single leader manager with  follower managers (Raft terminology), a new manager gets cryptojoin token for managers, the cluster store's been extended to it.  issued its own client certificate which identifies it  as a Swarm member with a  manager role.  
+
+When a commands is issued at the cluster, if we hit a follower manager, it's going to proxy commands to the leader. when a leader fails, we have an election and one of the followers gets elected as a new leader (managed by Raft as in Kubernetes). It is important to connect your managers over decent, reliable networks avoid putting them cross region.  we can also have a mix of Linux and Windows running hybrid apps. 
+
+
+The workers do all the application work on a Swarm that's either a native Swarm work or it's Kubernetes, when we make a worker join a Swarm, it does not get access to the cluster store(only for managers), but each worker get the full list of IPs managers, if one of them dies, the workers can just talk to the others, they get their own certificates which identifies who the worker is, the Swarm that it's a member of, and what its role is: worker...
+
+Swarm is a  cluster of managers and workers, a full-on PKI where the lead manager is the root CA, and it issues every node with a client certificate that gets used to a mutual authentication, role authorization, and transport encryption, in addition to distributed encrypted cluster store, cryptographic join tokens, and load balancing.
+
+ 
