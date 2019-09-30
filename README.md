@@ -57,7 +57,7 @@ constructs with its own containerized root file system, processed tree and zero 
 - UTS: gives everything its own host name,
 - username space: new to Docker, lets map accounts inside the container to different users on the host.e.g. root user and a non-privileged user on a host.
 
-**Control groups (aka C-groups)**: supervises/limits the consumption of system resources. In Windows world they are called Job Objects, like containers are meant to group processes, C-groups imposes limits (amount of CPU, memory, disk IO...) on a container. 
+**Control groups (aka C-groups)**: supervises/limits the consumption of system resources. In **Windows world** they are called **Job Objects**, like containers are meant to group processes, C-groups imposes limits (amount of CPU, memory, disk IO...) on a container. 
 Namespace and Control Groups gives a workable containers in a union file system, combining read-only file systems or blocked devices, adding them on the top of the readonly (image) layer => presenting them to the system as a unified view. 
 
 ![pic](images/figure4.PNG)
