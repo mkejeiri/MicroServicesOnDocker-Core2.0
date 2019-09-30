@@ -977,14 +977,13 @@ will not be able to restart the manager.
 
 ```
 
-```sh 
-
 restart  docker afterwards
 
+```sh 
 #restart  docker
 sudo service docker restart
-```
 
+```
 
 ```sh 
 #inspect the cluser
@@ -994,13 +993,11 @@ Error response from daemon: Swarm is encrypted and needs to be unlocked before i
 ```
 
 
-
 ```sh 
 #unlock cluster
 docker  swarm unlock 
 
 Please enter unlock key: 
-
 ```
 
 ```sh 
@@ -1024,6 +1021,4 @@ docker system info
    Expiry Duration: 2 days
    Force Rotate: 0
   Autolock Managers: true
-
-
 ```
