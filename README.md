@@ -35,8 +35,11 @@ The Docker engine :
 
 ### Simple Workflow : 
 1 - use the command line to create a new container
+
 2 - client takes the command and makes the appropriate API request to the container
+
 3 - engine pulls together all of the required kernel pieces and pops out  a container! 
+
 ![pic](images/figure2.PNG)
 
 **Namespaces** : are about isolation, OS carve into multiple, isolated, virtual operating systems with all of its resources, i.e high-level
