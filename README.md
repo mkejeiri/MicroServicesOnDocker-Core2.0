@@ -1,4 +1,6 @@
 ﻿# MicroServicesOnDocker
+check out https://training.play-with-docker.com/
+
 ```sh
 Install Docker EE - Windows
 Install-Module DockerProvider -Force
@@ -708,4 +710,324 @@ The workers do all the application work on a Swarm that's either a native Swarm 
 
 Swarm is a  cluster of managers and workers, a full-on PKI where the lead manager is the root CA, and it issues every node with a client certificate that gets used to a mutual authentication, role authorization, and transport encryption, in addition to distributed encrypted cluster store, cryptographic join tokens, and load balancing.
 
- 
+ By default docker is on a single engine mode , i.e  Swarm: inactive 
+
+```sh 
+#check swarm if active
+docker system info
+
+...
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+ Swarm: inactive
+ Runtimes: runc
+ ...
+```
+
+```sh 
+#init  swarm
+docker swarm init --advertise-addr 192.168.0.156
+
+
+Swarm initialized: current node (yq3d7yo9tanwe64lbw5xq9sme) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-4dzptuye5bokkfx7uz5zvsod8aye2fqj8uxexm07jpkqe2hdw8-1o7640pdixtf8egrr8g7qc6bl 192.168.0.156:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+
+```
+
+```sh 
+#check swarm if active
+docker system info
+
+Client:
+ Debug Mode: false
+
+Server:
+ Containers: 3
+  Running: 0
+  Paused: 0
+  Stopped: 3
+ Images: 14
+ Server Version: 19.03.2
+ Storage Driver: overlay2
+  Backing Filesystem: extfs
+  Supports d_type: true
+  Native Overlay Diff: true
+ Logging Driver: json-file
+ Cgroup Driver: cgroupfs
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+ Swarm: active
+  NodeID: yq3d7yo9tanwe64lbw5xq9sme
+  Is Manager: true
+  ClusterID: lde6yf7urp8efqvfgr0cannr4
+  Managers: 1
+  Nodes: 1
+  Default Address Pool: 10.0.0.0/8  
+  SubnetSize: 24
+  Data Path Port: 4789
+  Orchestration:
+   Task History Retention Limit: 5
+  Raft:
+   Snapshot Interval: 10000
+   Number of Old Snapshots to Retain: 0
+   Heartbeat Tick: 1
+   Election Tick: 10
+  Dispatcher:
+   Heartbeat Period: 5 seconds
+  CA Configuration:
+   Expiry Duration: 3 months
+   Force Rotate: 0
+  Autolock Managers: false
+  Root Rotation In Progress: false
+  Node Address: 192.168.0.156
+  Manager Addresses:
+   192.168.0.156:2377
+ Runtimes: runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: 894b81a4b802e4eb2a91d1ce216b8817763c29fb
+ runc version: 425e105d5a03fabd737a126ad93d62a9eeede87f
+ init version: fec3683
+ Security Options:
+  apparmor
+  seccomp
+   Profile: default
+ Kernel Version: 4.15.0-64-generic
+ Operating System: Ubuntu 18.04.3 LTS
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 4
+ Total Memory: 31.31GiB
+ Name: dev-NUC7i7BNH
+ ID: TMY3:26WP:KN7M:RNQE:E6AW:ZCYG:J6AR:3IIX:OVGC:FGBN:JTCJ:F3WO
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ Registry: https://index.docker.io/v1/
+ Labels:
+ Experimental: false
+ Insecure Registries:
+  127.0.0.0/8
+ Live Restore Enabled: false
+
+WARNING: No swap limit support
+
+```
+
+
+```sh 
+#check swarm nodes : one node active and it's a leader
+docker node ls
+
+ID                            HOSTNAME            STATUS              AVAILABILITY        MANAGER STATUS      ENGINE VERSION
+yq3d7yo9tanwe64lbw5xq9sme *   dev-NUC7i7BNH       Ready               Active              Leader              19.03.2
+
+```
+
+
+```sh 
+#adding a manager follower : afterwards Manager status should display Reachable 
+docker swarm join-token manager
+
+To add a manager to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-4dzptuye5bokkfx7uz5zvsod8aye2fqj8uxexm07jpkqe2hdw8-69c8p012cnbgm5512em418k7m 192.168.0.156:2377
+
+
+```
+
+```sh 
+#adding another manager follower, we need to switch node (HOSTNAME)
+docker swarm join --token SWMTKN-1-4dzptuye5bokkfx7uz5zvsod8aye2fqj8uxexm07jpkqe2hdw8-69c8p012cnbgm5512em418k7m 192.168.0.156:2377
+```
+
+We can add as many as we want of manager in different nodes/host 
+
+
+```sh 
+#adding  worker in a node : no status is displayed for the worker
+docker swarm join --token worker
+```
+
+
+
+
+```sh 
+#adding  worker to join a manager : no status is displayed  for the worker
+docker swarm join --token SWMTKN-1-4dzptuye5bokkfx7uz5zvsod8aye2fqj8uxexm07jpkqe2hdw8-69c8p012cnbgm5512em418k7m 192.168.0.156:2377 worker
+```
+
+
+```sh 
+#adding  worker to join a manager
+docker swarm join --token --rotate worker
+
+
+#get different token
+docker swarm join --token SWMTKN-1-4dzptuye5bokkfx7uz5zvsod8aye2fqj8m418k7muxexm07jpkqe2hdw8-69c8p012cnbgm5512e 192.168.0.156:2377
+
+```
+>>if we try to join with a worker using an old token we get an error  a valid join token is necessary to join in this cluster, old workers with all token stay in the cluster.
+
+if we want to look at the client cerficate :
+```sh 
+sudo openssl x509 -in /var/lib/docker/swarm/certificates/swarm-node.crt  -text
+
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            05:f7:90:51:55:1b:eb:7e:fd:25:9d:4a:b9:97:66:cb:a1:cb:15:3a
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = swarm-ca
+        Validity
+            Not Before: Sep 30 04:15:00 2019 GMT
+            Not After : Dec 29 05:15:00 2019 GMT
+        Subject: O = lde6yf7urp8efqvfgr0cannr4, OU = swarm-manager, CN = yq3d7yo9tanwe64lbw5xq9sme
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:8f:ef:e5:6b:e3:48:6c:98:c9:f9:74:b8:cc:1d:
+                    1e:ca:f6:09:9f:5e:32:eb:2e:2c:a3:46:da:59:d1:
+                    89:ec:ae:59:25:94:4f:79:45:5b:1b:2e:7e:57:66:
+                    96:3e:2b:bf:f4:cd:24:3a:23:cd:50:9b:2a:20:63:
+                    77:0d:1e:2c:9f
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Key Usage: critical
+                Digital Signature, Key Encipherment
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Subject Key Identifier: 
+                A6:19:7A:D9:BE:95:35:54:7E:00:81:5C:30:EA:D5:1D:E7:5A:4B:24
+            X509v3 Authority Key Identifier: 
+                keyid:C6:FA:23:10:52:92:5E:D5:38:3C:31:32:C7:05:C4:F5:38:AE:D8:98
+
+            X509v3 Subject Alternative Name: 
+                DNS:swarm-manager, DNS:yq3d7yo9tanwe64lbw5xq9sme, DNS:swarm-ca
+    Signature Algorithm: ecdsa-with-SHA256
+         30:46:02:21:00:e2:f8:f0:7c:f0:4a:05:57:9e:3e:cf:37:a1:
+         d9:84:2c:07:86:b6:1b:d2:39:ba:37:d9:04:d7:c6:2d:62:4f:
+         6c:02:21:00:c1:47:ed:2d:3a:c7:cd:10:9d:8f:89:47:3e:b3:
+         ea:84:9c:d4:9c:b1:c9:bc:de:8f:62:31:54:a3:7c:41:8f:78
+-----BEGIN CERTIFICATE-----
+MIICNjCCAdugAwIBAgIUBfeQUVUb6379JZ1KuZdmy6HLFTowCgYIKoZIzj0EAwIw
+EzERMA8GA1UEAxMIc3dhcm0tY2EwHhcNMTkwOTMwMDQxNTAwWhcNMTkxMjI5MDUx
+NTAwWjBgMSIwIAYDVQQKExlsZGU2eWY3dXJwOGVmcXZmZ3IwY2FubnI0MRYwFAYD
+VQQLEw1zd2FybS1tYW5hZ2VyMSIwIAYDVQQDExl5cTNkN3lvOXRhbndlNjRsYnc1
+eHE5c21lMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEj+/la+NIbJjJ+XS4zB0e
+yvYJn14y6y4so0baWdGJ7K5ZJZRPeUVbGy5+V2aWPiu/9M0kOiPNUJsqIGN3DR4s
+n6OBvzCBvDAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsG
+AQUFBwMCMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFKYZetm+lTVUfgCBXDDq1R3n
+WkskMB8GA1UdIwQYMBaAFMb6IxBSkl7VODwxMscFxPU4rtiYMD0GA1UdEQQ2MDSC
+DXN3YXJtLW1hbmFnZXKCGXlxM2Q3eW85dGFud2U2NGxidzV4cTlzbWWCCHN3YXJt
+LWNhMAoGCCqGSM49BAMCA0kAMEYCIQDi+PB88EoFV54+zzeh2YQsB4a2G9I5ujfZ
+BNfGLWJPbAIhAMFH7S06x80QnY+JRz6z6oSc1Jyxybzej2IxVKN8QY94
+-----END CERTIFICATE-----
+```
+In the Subject field :  `Subject: O = lde6yf7urp8efqvfgr0cannr4, OU = swarm-manager, CN = yq3d7yo9tanwe64lbw5xq9sme` ,O : Organisation, OU: Organisation Unit, CN: Canonical Name = cryptographic node ID
+
+
+
+
+last field between worker and manager from the swarm doesn't match 
+
+![pic](images/figure17.png)	
+
+
+
+
+Restaring a manager is a bit of concern, docker give the possibility to lock a swarm
+
+
+restarting a manager, or restoring an old backup both present a couple of concerns, Docker gives us the option to lock a Swarm. It's called Autolock. At a high level, it stops restarted managers from automatically rejoining the Swarm. And then
+subsequently loading the encryption keys into memory and decrypting the Raft logs, stops you from automatically restoring an old copy of the cluster config.
+It will ask for an unlock key, Autolock is not enabled by default, you need to be explicit : 
+
+```sh 
+#init  swarm
+docker swarm init --advertise-addr 192.168.0.156 --autolock
+```
+or for existing swarm :
+
+```sh 
+#autolock an existing  swarm
+docker swarm update  --autolock=true
+
+Swarm updated.
+To unlock a swarm manager after it restarts, run the `docker swarm unlock`
+command and provide the following key:
+
+    SWMKEY-1-0q/VYgCZaGug9GxupzFne3hiEfnr8vQuzj1eKEPMS/w
+
+Please remember to store this key in a password manager, since without it you
+will not be able to restart the manager.
+
+```
+
+```sh 
+
+restart  docker afterwards
+
+#restart  docker
+sudo service docker restart
+```
+
+
+#inspect the cluser
+docker node ls
+
+Error response from daemon: Swarm is encrypted and needs to be unlocked before it can be used. Please use "docker swarm unlock" to unlock it.
+```
+
+
+
+#unlock cluster
+docker  swarm unlock 
+
+Please enter unlock key: 
+
+```
+
+#inspect the cluser after unlock works
+docker node ls
+```
+
+#to update a certificate in 2 days
+docker swarm update --cert-expiry 48h
+Swarm updated.
+```
+
+#check certificate 
+docker system info
+ ...
+ Dispatcher:
+   Heartbeat Period: 5 seconds
+  CA Configuration:
+   Expiry Duration: 2 days
+   Force Rotate: 0
+  Autolock Managers: true
+ ...
+
+```
+
+
+
+
+
+
+
+
+
