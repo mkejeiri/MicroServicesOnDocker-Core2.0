@@ -44,8 +44,9 @@ The Docker engine :
 
 **Namespaces** : are about isolation, OS carve into multiple, isolated, virtual operating systems with all of its resources, i.e high-level
 constructs with its own containerized root file system, processed tree and zero interface, users,... sharing a single kernel on a host, On the other hypervisor takes a physical machine and curves into into multiple virtual machine with their own CPU, virtual memory, virtual networking, virtual storage...
-hypervisor world : each one like a fullblown machine
-container world : each one like a Os with its secured boundery
+
+- **Hypervisor world** : each one like a fullblown machine
+- **container world** : each one like a Os with its secured boundery
 
 ![pic](images/figure3.PNG)
 
