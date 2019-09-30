@@ -986,6 +986,7 @@ sudo service docker restart
 ```
 
 
+```sh 
 #inspect the cluser
 docker node ls
 
@@ -994,6 +995,7 @@ Error response from daemon: Swarm is encrypted and needs to be unlocked before i
 
 
 
+```sh 
 #unlock cluster
 docker  swarm unlock 
 
@@ -1001,24 +1003,27 @@ Please enter unlock key:
 
 ```
 
+```sh 
 #inspect the cluser after unlock works
 docker node ls
 ```
 
+```sh 
 #to update a certificate in 2 days
 docker swarm update --cert-expiry 48h
 Swarm updated.
 ```
 
+```sh 
 #check certificate 
 docker system info
- ...
+
  Dispatcher:
    Heartbeat Period: 5 seconds
   CA Configuration:
    Expiry Duration: 2 days
    Force Rotate: 0
   Autolock Managers: true
- ...
+
 
 ```
