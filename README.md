@@ -1022,12 +1022,3 @@ docker system info
  ...
 
 ```
-
-
-
-
-
-
-
-
-
