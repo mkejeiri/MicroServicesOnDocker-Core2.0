@@ -50,7 +50,7 @@ constructs with its own containerized root file system, processed tree and zero 
 
 ![pic](images/figure3.PNG)
 
-**PID Namespace**: gives each container its own isolated process tree, unaware of any other container existance
+- **PID Namespace**: gives each container its own isolated process tree, unaware of any other container existance
 - network : Namespace gives each container its own isolated network stack, IP's rooting tables
 - Mount : gives a container its own isolated root file system
 - IPC : lets processes in a single container access the same shared memory, and stops everything from outside container,
