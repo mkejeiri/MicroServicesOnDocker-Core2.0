@@ -170,7 +170,8 @@ Server Version: 19.03.2
 Storage Driver: overlay2
 Backing Filesystem: extfs or Root Dir: /var/lib/docker/aufs (Aufs is the oldest driver, overlay2 is the future)
 ```
-**In windows world** images are stored in *c:\programData\docker\windowsfilrer*, in linux world images are stored in /var/lib/docker/<storage-driver> (<storage-driver> = {Aufs,overlay2,... })
+- **In windows world** images are stored in *c:\programData\docker\windowsfilrer*, 
+- **In linux world** images are stored in /var/lib/docker/<storage-driver> (<storage-driver> = {Aufs,overlay2,... })
 
 From a kernel perspective, it is totally possible to be running a Centos/suze/mint docker host within an ubuntu based containers on it because the **shared kernel** is the same but not windows though.
 all images are stored in /var/lib/docker/overlay2 (sudo ls -l /var/lib/docker/overlay2)
