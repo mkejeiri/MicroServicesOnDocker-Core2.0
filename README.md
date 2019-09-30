@@ -73,12 +73,17 @@ Namespace and Control Groups gives a workable containers in a union file system,
 
 
 **Linux Workflow**:
+
 1 - The client asks the daemon for a new container. 
+
 2 - The daemon gets Container D to start and manage the containers, and runs C at the OCI layer (actually builds them) 
+
 3 - Run C is the reference implementation of the OCI runtime spec (Docker vanilla installation)
 
 **Windows Workflow**:
+
 1 - The client asks the daemon for a new container.
+
 2 - The daemon gets Compute Services layer (instead of Container D in the OCI layer) to start and manage the containers
 
 Those differences are there because when MS was shipping Server 2016, at the same time Docker was refactoring into Container D and Run C 
@@ -87,11 +92,17 @@ Those differences are there because when MS was shipping Server 2016, at the sam
 ![pic](images/figure6.PNG)
 
 **WorkFlow creating container - Linux**:
+
 1 - The command's docker container run (or just 'docker Run')
+
 2 - The client takes the command posts it as an API request to the container's create endpoint in the daemon. 
+
 3 - Daemon ('capital D') : recent docker engine refactoring has left the daemon without any code to execute run containers which implemented into Container D in the OCI layer 
+
 4 - Container D: the daemon calls out to Container D over a GRPC API on a local Unix socket, can't actually create a container, all the logic to interface with the Namespaces and the kernel is implemented by the OCI
+
 5 - OCI  : Docker on Linux defaults to Run C (we could switch for any OCI compliant runtime)
+
 6 - Shim: The daemon starts Container D, which is a daemon process (i.e. long-running process), which is the glue between the Daemon and Run C, Container D starts a shim process for every container, and Run C creates the container, So Run C gets called for every new container and exit. The shim stay alive instead.
 
 **Run C** is potentially swapable for any OCI compliant runtime, and container D and OCI both reusable as well, so both easily reused by players in the eco-system. 
