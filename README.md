@@ -330,7 +330,7 @@ gives us image config and its layers in json file format (a manifest read)
 at the bottom, we have layers and their content hashes => they don't match up with the directory names or the image IDs
 shown in the pull. 
 
-further up, we see pieces that makes up an image (Working directories, environment variables, network ports,
+further up, we see pieces that makes up an image (Working directories, environment variables, network ports, ...)
 
 **Remove all images**
 ```sh
