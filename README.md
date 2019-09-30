@@ -349,8 +349,8 @@ explicit about the registry, it assumes Docker Hub (docker.io) and if you're not
 
 The structure is a follow : ` REGISTRY/REPO/IMAGE(TAG)`
 
-**In windows world** images are stored in ` c:\programData\docker\windowsfilrer` 
-**In linux world** images are stored in ` /var/lib/docker/<storage-driver> (<storage-driver>`  = {Aufs,overlay2,... })
+- **In windows world** images are stored in ` c:\programData\docker\windowsfilrer`
+- **In linux world** images are stored in ` /var/lib/docker/<storage-driver> (<storage-driver>`  = {Aufs,overlay2,... })
 
 
 ```sh
