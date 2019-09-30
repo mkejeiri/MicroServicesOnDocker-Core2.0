@@ -90,6 +90,7 @@ Those differences are there because when MS was shipping Server 2016, at the sam
 **OCI** = Open Containers Initiative, It contains 2 specifications: 
 - The Runtime Specification (runtime-spec) 
 - and the Image Specification (image-spec). 
+
 The Runtime Specification outlines how to run a “filesystem bundle” that is unpacked on disk. At a high-level an OCI implementation would download an OCI Image then unpack that image into an OCI Runtime filesystem bundle. At this point the OCI Runtime Bundle would be run by an OCI Runtime.
 
 ![pic](images/figure6.PNG)
