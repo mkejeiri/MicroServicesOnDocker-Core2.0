@@ -1067,7 +1067,13 @@ container networking options
 
 - **Overlay networks**: instead of isolated bridges scoped to a single host, an overlay is a single layer-two network spanning multiple hosts, they are  simple to build, with single command we create an Overlay then we attach containers to it, thus containers can talk to each other as if they were side by side.The control plane, that is encrypted out of the box and encrypting the data plane with single command flag.
 
+
+
 ![pic](images/figure20.png)	
+
+
+
+
 
 >> in Overlay networks containers could to talk to VMs or physicals out on your existing VLANs (MACVLAN transparent on Windows), every container its own IP address and MAC address on the existing network meaning containers can be visible as first-class citizens on a VLANs, no bridges and no port mapping, but it requires promiscuous mode.Clouds don't allow promiscuous mode, we could use IPVLAN which doesn't require promiscuous mode.
 
