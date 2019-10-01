@@ -1045,3 +1045,9 @@ docker system info
    Force Rotate: 0
   Autolock Managers: true
 ```
+
+
+**Orchestration**
+
+Orchestration allow us to scale out containers through automation rather than individually manage huge number of nodes (i.e containers). Swarm and Kubernetes make sure there's always the same numbers of nodes supporting the apps. 
+They're constantly observing the cluster and any time the actual state diverges from the desired state (e.g. node's failed) Swarm and Kubernetes step in and self-heal.
