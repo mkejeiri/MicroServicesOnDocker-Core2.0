@@ -1054,3 +1054,228 @@ They're constantly observing the cluster and any time the actual state diverges 
 
 
 ### Network Types
+
+Network Types
+Containers need to talk to each other. And guess what? Sometimes they even need to talk to VMs and
+![pic](images/figure18.png)	
+
+container networking options
+- **Bridge network** (aka single-house networking): old and it's the most common it's turned on by default, (Bridge on linux or Nat on windows, aka Docker zero), but containers on separate isolated bridges, are isolated layer-two networks even if they were on the same host. To communicate between each other we need to map conainers ports to the host (IP-to-IP). the the same way as for connecting to the outside world.
+
+![pic](images/figure19.png)	
+
+
+- **Overlay networks**: instead of isolated bridges scoped to a single host, an overlay is a single layer-two network spanning multiple hosts, they are  simple to build, with single command we create an Overlay then we attach containers to it, thus containers can talk to each other as if they were side by side.The control plane, that is encrypted out of the box and encrypting the data plane with single command flag.
+
+![pic](images/figure20.png)	
+
+>> in Overlay networks containers could to talk to VMs or physicals out on your existing VLANs (MACVLAN transparent on Windows), every container its own IP address and MAC address on the existing network meaning containers can be visible as first-class citizens on a VLANs, no bridges and no port mapping, but it requires promiscuous mode.Clouds don't allow promiscuous mode, we could use IPVLAN which doesn't require promiscuous mode.
+
+
+
+```sh 
+docker node ls
+
+ID                            							HOSTNAME            STATUS          AVAILABILITY     MANAGER STATUS      ENGINE VERSION
+yq3d7yo9tanwe64lbw5xq9sme *   node1-************       Ready               Active                  Leader              							19.03.2
+************************************* *   node2-************       Ready               Active                 Reachable              						19.03.2
+************************************* *   node3-************       Ready               Active                 Reachable              						19.03.2
+```
+
+### Bridge network example
+
+>> by default all  new containers go onto bridge network unless we specifies differently in Docker. 
+
+```sh 
+docker network ls
+
+NETWORK ID          NAME                DRIVER              SCOPE
+4096361c5b30        bridge              bridge              local
+563d4339eb60        docker_gwbridge     bridge              local
+c58a2e29a272        host                host                local
+0fzpetre4src        ingress             overlay             swarm
+f2ad8b674764        none                null                local
+4349cdaa4f73        scripts_default     bridge              local
+```
+```sh 
+#check certificate 
+docker network inspect bridge
+[
+    {
+        "Name": "bridge",
+        "Id": "4096361c5b30f3a037769de8c42234934179c711bfcfb9bd79485ac5bc83e6f0",
+        "Created": "2019-10-01T05:29:07.892729461+02:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]
+
+```
+we get name and ID, scoped locally using the built-in bridge driver (the original driver) then containers are going to get IPs from the "Subnet": "172.17.0.0/16". Here   "Containers": {} are none.
+
+
+**run a container in the background** and it will use defaut bridge.
+```sh 
+docker container run --rm -d alpine  sleep 1d
+```
+```sh 
+docker network inspect bridge
+[
+    {
+        "Name": "bridge",
+        "Id": "4096361c5b30f3a037769de8c42234934179c711bfcfb9bd79485ac5bc83e6f0",
+        "Created": "2019-10-01T05:29:07.892729461+02:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "c0f050765a8bd8b7cbc3f869adbca767f04a3b2c7de2439bb3be0c152aa9eac6": {
+                "Name": "vigorous_jackson",
+                "EndpointID": "7388e58e867aed4e8df7a04eb3146216d51611067dbbd2500a5093fa46ea9bab",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        },
+        "Labels": {}
+    }
+]
+
+```
+>> Container got an IP address (172.17.0.2/16)  in a bridge network, note that container is stranded on this host/bridge, to talk with the outside we need to map a port on the host to a port in the container. 
+>> nginx runs a web server on port 80 inside the container which's mapped onto port 8080 on the host. 
+
+```sh 
+#map port 8080 on the host to 80 in the container
+#check out http://localhost:8080
+docker container run --rm -d --name web  -p 8080:80 nginx
+```
+```sh 
+#check out the port
+docker port web
+
+80/tcp -> 0.0.0.0:8080
+```
+
+>> to create a new bridge network named mynewbridge
+
+```sh 
+
+docker network create -d bridge mynewbridge
+docker network ls
+
+NETWORK ID          NAME                DRIVER              SCOPE
+4096361c5b30        bridge              bridge              local
+563d4339eb60        docker_gwbridge     bridge              local
+c58a2e29a272        host                host                local
+0fzpetre4src        ingress             overlay             swarm
+a7d9232fd4cf        mynewbridge         bridge              local
+f2ad8b674764        none                null                local
+4349cdaa4f73        scripts_default     bridge              local
+```
+
+
+>> to run a container in mynewbridge network bridge
+
+```sh 
+docker container run --rm -d --network mynewbridge alpine  sleep 1d
+```
+### Overlays network example
+
+Overlays needs swarm mode because they leverage a set of swarm security behind the scenes
+```sh 
+
+docker network create -d overlay mynewoverly
+docker network ls
+
+NETWORK ID          NAME                DRIVER              SCOPE
+4096361c5b30        bridge              bridge              local
+563d4339eb60        docker_gwbridge     bridge              local
+c58a2e29a272        host                host                local
+0fzpetre4src        ingress             overlay             swarm
+a7d9232fd4cf        mynewbridge         bridge              local
+q0i3b828606c        mynewoverly         overlay             swarm
+f2ad8b674764        none                null                local
+4349cdaa4f73        scripts_default     bridge              local
+```
+>> **mynewoverly** is scopped to the swarm, i.e. it's available on every node in the swarm and it's multi-host; we can create new containers and services on any node in the swarm and attach them to this network.
+
+
+```sh 
+#pinger, creating two tasks or replicas, putting it on the mynewoverly
+docker service create -d --name pinger \
+--replicas 2 --network mynewoverly apline sleep 1d
+
+#check the replicas
+docker service ls
+
+```
+```sh 
+#check replicas which nodes they're on
+docker service ps pinger
+
+#switch to node 1 and inspect network
+docker network inspect mynewoverly
+
+#check out the containers in config json format and it the IP address (10.0.0.6)
+#go to the other node replicas, and run sh
+docker conainer exec -it  [2-first digit of ID] sh
+# ping 10.0.0.6
+```
+>> we're pinged a different container on a different host using the **overlay network**.
+
+
+### Network Services
