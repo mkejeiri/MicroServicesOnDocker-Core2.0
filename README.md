@@ -689,7 +689,7 @@ docker logs <container> [--follow]
 ### Swarm
 
 A Swarm is a secure cluster of Docker nodes (i.e. giant Docker node), we can run work against it (vs individual nodes) in Native Swarm or Kubernetes mode. It comes in two parts:
-- The Secure cluster: 
+- The **Secure cluster**: 
 									- It shipped with Docker Enterprise Edition and at the highest level, it's a cluster of Docker nodes( containered and the OCI, including native support for Kubernetes)
 									- The Secure cluster: managers and workers, communicating through Mutual TLS (encrypted network) where workers and managers mutually authenticate each other.
 									- It has an encrypted cluster stores, which gets automatically distributed to all managers, we  use labels to tag nodes and customize the cluster
@@ -697,7 +697,7 @@ A Swarm is a secure cluster of Docker nodes (i.e. giant Docker node), we can run
 
 ![pic](images/figure14.png)	
 	
-- The Orchestrator: not quite as strategic,Swarm orchestration will give way to Kubernetes, we can run two types of work on the cluster; Native Swarm work, and Kubernetes. 
+- The **Orchestrator**: not quite as strategic, **Swarm orchestration** might give it way to **Kubernetes**, we can run two types of work on the cluster; Native Swarm work, and Kubernetes. 
  
  Docker is a set of bundled packaged tools in a slick API such as  Mobi engine and containered, runC and SwarmKit.
 
