@@ -1330,12 +1330,12 @@ docker service rm $(docker service ls -q)
   TargetPort = 80
   PublishMode = ingress 
 ```
->> It's published swarm wide on 8080 heading to 80 on the service containers and it's published on the ingress network (i.e swarm wide), every node in the swarm gets the ingress network. 
+> It's published swarm wide on 8080 heading to 80 on the service containers and it's published on the ingress network (i.e swarm wide), every node in the swarm gets the ingress network. 
 
->> In addition to ingress load balancing, there's internal load balancing, e.g.  with 10 replicas running for instance, Swarm's going to use DNS-based load balancing so that all requests get balanced across all 10 replicas, in more general terms this enables us to point any external load balancer at any node in the swarm without having to tell it which nodes are hosting the service. 
+> In addition to ingress load balancing, there's internal load balancing, e.g.  with 10 replicas running for instance, Swarm's going to use DNS-based load balancing so that all requests get balanced across all 10 replicas, in more general terms this enables us to point any external load balancer at any node in the swarm without having to tell it which nodes are hosting the service. 
 
 
 
->> Service discovery makes every service on the swarm discoverable via a built-in swarm DNS.
+> Service discovery makes every service on the swarm discoverable via a built-in swarm DNS.
 
->> Load balancing make it easy so that every node in the swarm knows about every service and it let us point external load balancers at any node in the swarm and no matter which node we hit, we reach the intended service; and the stack's pluggable, so we can plug in third-party drivers for things like IP address management and maybe different network topologies. 
+> Load balancing make it easy so that every node in the swarm knows about every service and it let us point external load balancers at any node in the swarm and no matter which node we hit, we reach the intended service; and the stack's pluggable, so we can plug in third-party drivers for things like IP address management and maybe different network topologies. 
