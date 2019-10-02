@@ -1308,11 +1308,12 @@ docker service rm $(docker service ls -q)
   
 -  **Load balancing**: let's us access a service from any node in the swarm even nodes that aren't hosting the service and it balances load across them. there is 2 main aspects : 
 	- Ingress load balancing where external clients can access a swarm service via any of the nodes in the swarm, i.e.  we can still hit any node in the swarm from the outside even the one that's not running the replica and still reach the service.
+	- Load balancing work across all replicas in a service (example next) 
 	
 ![pic](images/figure22.png)	
 
 	
-	- Load balancing work across all replicas in a service (example next) , 
+
 
   
  ```sh 
