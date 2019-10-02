@@ -1241,7 +1241,7 @@ docker container run --rm -d --network mynewbridge alpine  sleep 1d
 ```
 ### Overlays network example
 
-Overlays needs swarm mode because they leverage a set of swarm security behind the scenes
+Overlays needs swarm mode because they leverage a set of swarm security behind the scenes, it's a multi-host secure network, i.e. we don't need to map nodes (i.e. containers) port within the swarm.
 ```sh 
 
 docker network create -d overlay mynewoverly
@@ -1285,3 +1285,57 @@ docker conainer exec -it  [2-first digit of ID] sh
 
 
 ### Network Services
+ Built-in network services are:
+ 
+ -  **Service discovery** : is all about being able to locate services in a swarm. Every new service gets a name. That name gets registered with DNS on the swarm and every container (i.e. service task) in a service gets a DNS resolver that forwards lookups to that swarm-based DNS service. We can ping a swarm service by name as long as they are on the same network (i.e. network scoped). 
+ 
+ Here an example of two services `ping` and `pong` on the same swarm network (mynewoverly) that we ping by name (i.e. network scoped!)
+ 
+ ```sh 
+#Clean up all the services
+docker service rm $(docker service ls -q)
+
+#create a ping service on mynewoverly with 3 replicas
+ docker service create -d --name ping --network mynewoverly --replicas 3 apline sleep 1d
+ 
+#create a pong service on mynewoverly with 3 replicas
+ docker service create -d --name pong --network mynewoverly --replicas 3 apline sleep 1d
+ 
+ # access container [first 2 container digit] and run the shell 
+ docker conainer exec -it [first 2 container digit] sh
+ # ping pong 
+```
+  
+-  **Load balancing**: let's us access a service from any node in the swarm even nodes that aren't hosting the service and it balances load across them. there is 2 main aspects : 
+	- Ingress load balancing where external clients can access a swarm service via any of the nodes in the swarm, i.e.  we can still hit any node in the swarm from the outside even the one that's not running the replica and still reach the service.
+	
+	[figure20]
+	
+	- Load balancing work across all replicas in a service (example next) , 
+
+  
+ ```sh 
+#create a myservice service on network (swarm) mynewoverly.
+#replicas=1 is the default (no need to mention it)
+#8080 port swarm wide maps into service 80 port => every node running on 8080 in the swarm gets mapped back to 80 on 'myservice' service replica
+# run a default nginx 
+ docker service create -d --name myservice --network mynewoverly --replicas 1 -p 8080:80 nginx
+
+ docker service inspect myservice --pretty
+ 
+ output: 
+ Ports:
+ PublishedPort = 8080
+  Protocol = tcp
+  TargetPort = 80
+  PublishMode = ingress 
+```
+>> It's published swarm wide on 8080 heading to 80 on the service containers and it's published on the ingress network (i.e swarm wide), every node in the swarm gets the ingress network. 
+
+>> In addition to ingress load balancing, there's internal load balancing, e.g.  with 10 replicas running for instance, Swarm's going to use DNS-based load balancing so that all requests get balanced across all 10 replicas, in more general terms this enables us to point any external load balancer at any node in the swarm without having to tell it which nodes are hosting the service. 
+
+
+
+>> Service discovery makes every service on the swarm discoverable via a built-in swarm DNS.
+
+>> Load balancing make it easy so that every node in the swarm knows about every service and it let us point external load balancers at any node in the swarm and no matter which node we hit, we reach the intended service; and the stack's pluggable, so we can plug in third-party drivers for things like IP address management and maybe different network topologies. 
