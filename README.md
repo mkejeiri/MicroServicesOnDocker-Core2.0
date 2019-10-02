@@ -4,7 +4,7 @@ check out https://training.play-with-docker.com/
 ### Create a nuget in local:
 ```sh
 
-dotnet pack --no-build --output C:\packages --configuration Release
+dotnet build --no-incremental --configuration Release
 dotnet pack --no-build --output C:\packages --configuration Release
 
 In VS Options>Nuget Package Manager>Packge Sources> add a new line 
