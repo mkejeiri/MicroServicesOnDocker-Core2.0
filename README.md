@@ -3,12 +3,13 @@ check out https://training.play-with-docker.com/
 
 ### Create a nuget in local:
 ```sh
-dotnet pack --no-build --output C: \packages --configuration Release
+
+dotnet pack --no-build --output C:\packages --configuration Release
 dotnet pack --no-build --output C:\packages --configuration Release
 
 In VS Options>Nuget Package Manager>Packge Sources> add a new line 
-Name: [Name of local nuget repo]
-Sources: [Your local Path repo]
+Name: [Name of local nuget repo] e.g. local
+Sources: [Your local Path repo] e.g. C:\packages
 ```
 
 ```sh
