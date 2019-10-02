@@ -1,6 +1,16 @@
 ﻿# MicroServicesOnDocker
 check out https://training.play-with-docker.com/
 
+### Create a nuget in local:
+```sh
+dotnet pack --no-build --output C: \packages --configuration Release
+dotnet pack --no-build --output C:\packages --configuration Release
+
+In VS Options>Nuget Package Manager>Packge Sources> add a new line 
+Name: [Name of local nuget repo]
+Sources: [Your local Path repo]
+```
+
 ```sh
 Install Docker EE - Windows
 Install-Module DockerProvider -Force
