@@ -12,6 +12,14 @@ Name: [Name of local nuget repo] e.g. local
 Sources: [Your local Path repo] e.g. C:\packages
 ```
 
+**[Managing the global packages, cache, and temp folders](https://docs.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders)**
+
+*Cache folder*
+```sh
+Windows: %userprofile%\.nuget\packages
+Mac/Linux: ~/.nuget/packages
+```
+
 ```sh
 Install Docker EE - Windows
 Install-Module DockerProvider -Force
