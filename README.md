@@ -138,7 +138,7 @@ NTFS and the registry, so that we can get image layering like AUFS and overlay2 
 
 ![pic](images/figure7.PNG)
 
-ported a Docker client and daemon into Windows the same API and the same user experience. We didn't get integration with swarm and other docker pieces, low level windows diverges from Linux, we got Compute Service layer.
+Windows has ported Docker client and daemon and the same API to have the same user experience. We didn't get integration with swarm and other docker pieces, low level windows diverges from Linux, we got Compute Service layer.
 
 **Windows** has developed a set of interdependencies, so apps need certain systems services, DLLs, to be available, and in turn, some of those rely on others, and if they're not there, things break, and it's not different for containers. Every container needs these processes. When we start a Windows container, it gets this process called SMSS (vs linux init process).
 
