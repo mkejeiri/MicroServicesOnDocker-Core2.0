@@ -171,7 +171,7 @@ The image ID is the hash of all image that content in registry's blob store, we 
 ```sh
 docker image pull redis:latest
 ```
-see also docker image push.
+`see also docker image push`
 
 Note that docker pull assume Docker Hub registry
 to see the hash
