@@ -174,6 +174,7 @@ docker image pull redis:latest
 `see also docker image push`
 
 > Note that docker pull assume Docker Hub registry
+
 to see the hash
 ```sh
 docker image ls --digests
