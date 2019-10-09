@@ -194,7 +194,7 @@ Backing Filesystem: extfs or Root Dir: /var/lib/docker/aufs (Aufs is the oldest 
 - **In linux world** images are stored in /var/lib/docker/<storage-driver> (<storage-driver> = {Aufs,overlay2,... })
 
 From a kernel perspective, it is totally possible to be running a Centos/Suse/Mint docker host within an ubuntu based containers on it because the **shared kernel** is the same but not windows though.
-all images are stored in /var/lib/docker/overlay2 (sudo ls -l /var/lib/docker/overlay2)
+all images are stored in /var/lib/docker/overlay2 (`sudo ls -l /var/lib/docker/overlay2`)
 ```sh
 docker history redis
 
