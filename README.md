@@ -46,7 +46,7 @@ sudo usermod -aG docker <username>
 - container : Isolated area of an OS with resource usage limits applied
 ![pic](images/figure1.PNG)
 
-To build a container, we leverage a bunch of low-level kernel construct, hence the namespaces and control groups,are low-level kernel construct which been around for longtime in Linux remained obscure and esoteric, hard to work with
+To build a container, we leverage a set of low-level kernel construct, hence the namespaces and control groups,are low-level kernel construct which been around for longtime in Linux remained obscure and esoteric, hard to work with
 
 The Docker engine :
 - API : single end-point interface used through the CLI
@@ -140,7 +140,7 @@ NTFS and the registry, so that we can get image layering like AUFS and overlay2 
 
 ported a Docker client and daemon into Windows the same API and the same user experience. We didn't get integration with swarm and other docker pieces, low level windows diverges from Linux, we got Compute Service layer.
 
-**Windows** has developed a bunch of interdependencies, so apps need certain systems services, DLLs, to be available, and in turn, some of those rely on others, and if they're not there, things break, and it's not different for containers. Every container needs these processes. When we start a Windows container, it gets this process called SMSS (vs linux init process).
+**Windows** has developed a set of interdependencies, so apps need certain systems services, DLLs, to be available, and in turn, some of those rely on others, and if they're not there, things break, and it's not different for containers. Every container needs these processes. When we start a Windows container, it gets this process called SMSS (vs linux init process).
 
 ![pic](images/figure8.PNG)
 **Native Windows containers** can only run native Win32 apps, and Hyper-V containers Windows actually spins up a lightweight Hyper-V VM in the background (less performance overhead than a full VM), but we still get a full OS, so it's not using the host's kernel, instead a separate isolated kernel, and then we run your container on that. 
@@ -541,7 +541,7 @@ CMD ["--spring.profiles.active=postgres"]
 
 ```
 
-Each **FROM** marks a distinct build stage with friendly names (**storefront**, **appserver**, **Production**), each stage spits out an image with a bunch of OS and build tools + a tiny app-related piece of code that we want at runtime. We end up with four images with a ton of build machinery inside.
+Each **FROM** marks a distinct build stage with friendly names (**storefront**, **appserver**, **Production**), each stage spits out an image with a set of OS and build tools + a tiny app-related piece of code that we want at runtime. We end up with four images with a ton of build machinery inside.
 
 **Smaller images** means faster builds, faster deployments, less money wasted on storage, and most of all less attack surface. Runing apps with minimal OS and minimal supporting packages, that is the gold standard. if we could run our apps with only commands, without any OS at all that the way to go! (check out **Unikernels**)
 
