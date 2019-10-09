@@ -105,7 +105,7 @@ Namespace and Control Groups gives a workable containers in a union file system,
 
 2 - The daemon gets Compute Services layer (instead of Container D in the OCI layer) to start and manage the containers
 
-Those differences are there because when MS was shipping Server 2016, at the same time Docker was refactoring into Container D and Run C 
+Those differences are there because when Microsoft was shipping Server 2016, at the same time Docker was refactoring into Container D and Run C 
 **OCI** = Open Containers Initiative, It contains 2 specifications: 
 - The Runtime Specification (runtime-spec) 
 - and the Image Specification (image-spec). 
