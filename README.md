@@ -95,7 +95,7 @@ Namespace and Control Groups gives a workable containers in a union file system,
 
 1 - The client asks the daemon for a new container. 
 
-2 - The daemon gets Container D to start and manage the containers, and runs C at the OCI layer (actually builds them) 
+2 - The daemon gets Container D to start and manage the containers, and runs C at the OCI layer (actually builds containers) 
 
 3 - Run C is the reference implementation of the OCI runtime spec (Docker vanilla installation)
 
