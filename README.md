@@ -144,7 +144,7 @@ Windows has ported Docker client and daemon and the same API to have the same us
 
 ![pic](images/figure8.PNG)
 **Native Windows containers** can only run native Win32 apps, and Hyper-V containers Windows actually spins up a lightweight Hyper-V VM in the background (less performance overhead than a full VM), but we still get a full OS, so it's not using the host's kernel, instead a separate isolated kernel, and then we run your container on that. 
-**The native containers** spin up, directly on the host, leverage its kernel, and isolation is done with Namespaces, while Hyper-V containers totally isolated kernel, and it can be Windows or Linux inside it's always one container per VM. 
+**The native containers** (in linux) spins up, directly on the host, leverage its kernel, and isolation is done with Namespaces, while Hyper-V containers totally isolated kernel, and it can be Windows or Linux inside it's always one container per VM. 
  
 It becomes a deployment decision, we develop our containers in Windows, and decide wether native or Hyper-V, by running the Docker run command flag.  
 
