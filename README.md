@@ -134,7 +134,7 @@ At a high-level an OCI implementation would download an OCI Image then unpack th
  
  
 **Native Windows containers** (runs blue Win32 apps)
-NTSFS and the registry, so that we can get image layering like AUFS and overlay AUFS on Linux. Remember, a union file system or a union mount system with some copy on right is an integral part of a Docker container.
+NTFS and the registry, so that we can get image layering like AUFS and overlay AUFS on Linux. Remember, a union file system or a union mount system with some copy on right is an integral part of a Docker container.
 
 ![pic](images/figure7.PNG)
 
