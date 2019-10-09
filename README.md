@@ -366,7 +366,7 @@ we can totally get on premises registries as well. Docker's got its own called D
 as part of Docker Enterprise edition.
 Docker Hub's got the notion of official and unofficial images (or tags). The official lives at the top level of the Hub namespace. e.g. docker.io/redis where redis is the repo name (or docker.io/nginx)... 
 within a registry, we've got repos and within repos, we've got images (aka tags). e.g. we only pull redis, Docker's added latest onto the end if you're not 
-explicit about the registry, it assumes Docker Hub (docker.io) and if you're not explicit about the image within the repo (redis or nginx), it assumes latest.
+explicit about the registry, it assumes Docker Hub (`docker.io`) and if you're not explicit about the image within the repo (redis or nginx), it assumes latest.
 
 The structure is a follow : ` REGISTRY/REPO/IMAGE(TAG)`
 
