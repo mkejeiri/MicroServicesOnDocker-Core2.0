@@ -162,7 +162,7 @@ these layers are unaware of the bigger image. They have no idea that they're sta
 **Pulling an image is actually a two step process**: 
 
 1 - Get the manifest is also a 2 steps 
- - get fat manifest (aka Manifest list) : list of architectures (my case: docker system info gives Architecture: x86_64) supported and points you to the image manifest 
+ - get fat manifest (aka Manifest list) : list of architectures (my case: `docker system info` gives Architecture: x86_64) supported and points you to the image manifest 
  - get image manifest : describes the image (e.g. ID, tag, createAt, layers and stack...), it has the hash which is the image id.
 
 2 - pull the layers. 
