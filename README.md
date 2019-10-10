@@ -1085,7 +1085,7 @@ container networking options
 ![pic](images/figure19.png)	
 
 
-- **Overlay networks**: instead of isolated bridges scoped to a single host, an overlay is a single layer-two network spanning multiple hosts, they are  simple to build, with single command we create an Overlay then we attach containers to it, thus containers can talk to each other as if they were side by side.The control plane, that is encrypted out of the box and encrypting the data plane with single command flag.
+- **Overlay networks**: instead of isolated bridges scoped to a single host, an overlay is a single layer to network spanning multiple hosts, they are  simple to build, with single command we create an Overlay then we attach containers to it, thus containers can talk to each other as if they were side by side.The control plane, that is encrypted out of the box and encrypting the data plane with single command flag.
 
 
 
@@ -1367,14 +1367,14 @@ docker service rm $(docker service ls -q)
 
 Containers need to talk to each other, to VMs and physical hosts and the internet, VMs and physical host and the internet  also need to talk back to containers. 
 
-set of container networking options. 
+Set of container  **networking options** are:
 
 - **bridge network**: aka *single-house networking*, *Nat* on Windows, *default network* or  *Docker zero*, it's oldest built-in network and the most common,  it turned on by default,  i.e. host and its running Docker,
 
 
 > each bridges are isolated  (layered network) even if they were on the same host, it requires port mappings to the host to get in or out.
 
-- **overlay networks** :  aka multi-host networks, instead of isolated bridges scoped to a single host, an overlay is a single layer-two network spanning multiple hosts (i.e. we can directly ping all container in multi-host)
+- **overlay networks** :  aka multi-host networks, instead of isolated bridges scoped to a single host, an overlay is a single layer to network spanning multiple hosts (i.e. we can directly ping all container in multi-host)
 
 >  with a single command we could create one of  **overlay networks**  (`docker network create mynetwork -o encrypted`) and then we attach containers to it. Encryption is a single command line flag; the control plane is encrypted out of the box and encrypting the data plane.
 
