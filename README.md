@@ -1372,19 +1372,12 @@ set of container networking options.
 - **bridge network**: aka *single-house networking*, *Nat* on Windows, *default network* or  *Docker zero*, it's oldest built-in network and the most common,  it turned on by default,  i.e. host and its running Docker,
 
 
-![pic](images/figure24.png)	
-
 > each bridges are isolated  (layered network) even if they were on the same host, it requires port mappings to the host to get in or out.
-
- 
 
 - **overlay networks** :  aka multi-host networks, instead of isolated bridges scoped to a single host, an overlay is a single layer-two network spanning multiple hosts (i.e. we can directly ping all container in multi-host)
 
-![pic](images/figure25.png)	
-
 >  with a single command we could create one of  **overlay networks**  (`docker network create mynetwork -o encrypted`) and then we attach containers to it. Encryption is a single command line flag; the control plane is encrypted out of the box and encrypting the data plane.
 
-![pic](images/figure26.png)	
 
 >  if containers to talk to VMs or physical host out on an existing VLANs, use MACVLAN (transparent on Windows). This gives every container its own IP address and MAC address on the existing network, i.e. containers can be visible as first-class citizens on the existing VLANs, no bridges and no port mapping, directly on the wire if you will but it requires promiscuous mode which generally not  allowed in the cloud ( use IPVLAN instead -> no promiscuous mode required).
 
