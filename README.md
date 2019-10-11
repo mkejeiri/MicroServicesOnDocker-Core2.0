@@ -1635,3 +1635,189 @@ Containers doesn't generate lasting data and they're great for immutable design 
 **Volume** storage  leaves outside of the world of the graph driver of the container (away from all that union mount), a **Volume**'s a directory on the Docker housed that's mounted straight on the container at a specific mount point. But behind the scenes, it can be sitting on a high-speed resilient SAN or NAS or any Docker **Volume** driver (high-performance, highly- available backend). **Volume** is an object in Docker that is managed and handled on its own entirely separate from containers 
 
 **Volume** data exists outside of the container space and has its own Docker **Volume** sub command but it seamlessly plugs into containers and services whilst still being fully independent. We can create and delete containers without deleting **Volume** data,  It also means we can attach a **Volume** to more than one container (careful with data corruption). 
+
+```sh
+#to see docker volume
+docker volume ls
+```
+
+```sh
+#to create docker volume
+docker volume create myvol
+docker volume ls
+```
+
+
+```sh
+#to inspect docker volume
+
+docker volume inspect myvol
+
+
+[
+    {
+        "CreatedAt": "2019-10-11T05:10:35+02:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/myvol/_data",
+        "Name": "myvol",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+
+```
+>  myvol created default local driver, it got created on the system `/var/lib/docker/volumes/myvol/_data` and it's scoped locally ( `"Scope": "local"`)
+
+```sh
+#to create docker volume
+docker volume create myvolextra
+docker volume ls
+
+DRIVER              VOLUME NAME
+local               myvol
+local               myvolextra
+
+```
+
+```sh
+#to see  volume on disk
+sudo ls -l /var/lib/docker/volumes
+
+total 56
+-rw------- 1 root root 65536 oct.  11 05:15 metadata.db
+drwxr-xr-x 3 root root  4096 oct.  11 05:10 myvol
+drwxr-xr-x 3 root root  4096 oct.  11 05:15 myvolextra
+
+```
+
+```sh
+#to remove  volume from disk
+docker volume rm myvol myvolextra
+
+#gone
+sudo ls -l /var/lib/docker/volumes
+total 48
+-rw------- 1 root root 65536 oct.  11 05:17 metadata.db
+```
+> We saw Docker volume command and also backing up volumes being totally independent of containers. i.e. we created, listed, inspected and then deleted two volumes without even using Docker run or Docker service create.
+
+#### Attaching Volumes to Containers
+
+```sh
+#container run, make it detached and interactive + mount flag = how we attach a volume named myvol and attached to target  = /vol  in the container
+docker container run -dit --name voletest  \
+--mount source=myvol,target=/vol  alpine:latest
+```
+we've attaching a volume that doesn't exist, i.e. Docker's going to create it for us (be aware of  of typo if already exists).
+**source**:  the name of the actual volume 
+**target**  where in the container to mount the volume
+
+Since volumes live in the Docker-host file system we can inspect them directly
+
+```sh
+sudo ls -l /var/lib/docker/volumes
+
+drwxr-xr-x 3 root root  4096 oct.  11 05:34 myvol
+
+```
+
+data that we put into them goes the  data directory : `/var/lib/docker/volumes/myvol/_data/`
+
+We **DO NOT** do something like that because the **container** are **immutable** but for testing purposes it allowed!
+
+```sh
+docker container exec -it voltest sh
+/ # ls -l /vol
+total 0
+/ # echo "some data" > /vol/newfile
+/ # cat /vol/newfile
+some data
+/ #  exit
+```
+
+```sh
+#check that the data exist in disk (/var/lib/docker/volumes/myvol/_data) and mounted to conainer in /vol directory
+cat /var/lib/docker/volumes/myvol/_data/newfile 
+some data
+```
+
+> if we remove the container the volume should exist-> fully independent and not tied to any container. 
+```sh
+docker rm voltest -f
+docker volume ls
+DRIVER              VOLUME NAME
+local               myvol
+```
+> create a new container volextra and attached to myvol
+
+```sh
+#container run, make it detached and interactive + mount flag = how we attach a volume named myvol and attached to target  = /app  in the container
+docker container run -dit --name volextra  \
+--mount source=myvol,target=/app  nginx:latest
+```
+> We created a new volume called **myvol** and we attached it to an **alpine container**,  We wrote some **data** to it, then we **deleted** the **container**. But **volumes** are**independent of containers**, So the **myvol** stuck around. We started a totally new container and attached the same **myvol** into it , i.e. any data that we created before should still exist in the exact same condition. 
+
+
+```sh
+docker container exec -it volextra sh
+/ # ls -l /app
+total 4
+-rw-r--r-- 1 root root 10 Oct 11 03:43 newfile
+
+/ # echo "some extra data" >> /app/newfile
+/ # cat /app/newfile
+some data
+some extra data
+/ #  exit
+```
+```sh
+#check that the data exist in disk (/var/lib/docker/volumes/myvol/_data) and mounted to conainer in /vol directory
+cat /var/lib/docker/volumes/myvol/_data/newfile 
+
+some data
+some extra data
+```
+
+> Volumes are managed separately to containers, we shouldn't be able to delete volumes as long as are in use by at least one container (safety mesure), once all containers attached to them are deleted then we can delete them.
+
+```sh
+docker volume rm myvol
+
+Error response from daemon: remove myvol: volume is in use - [7f67bf74ee945155d61d928a6ec978ca26f48fe4c3cd4b187b0816e636a8f5b9]
+```
+
+```sh
+#delete conainer
+docker container rm volextra
+
+#delete volume attached to it
+docker volume rm myvol
+
+#gone
+ls -l /var/lib/docker/volumes
+total 48
+-rw------- 1 root root 65536 oct.  11 06:03 metadata.db
+```
+
+** same way we could also attached vol to services**  and with the same cases as for container:
+
+```sh 
+#to create docker volume
+docker volume create myvol
+docker volume ls
+
+#replicas  on the mynewoverly network
+docker service create -d --name myservice  \ 
+--replicas 1 --network mynewoverly --mount source=myvol,target=/app  alpine
+
+#check the replicas
+docker service ls
+
+owvh2fffi0xn        myservice           replicated          0/1                 alpine:latest  
+
+docker volume rm myvol
+Error response from daemon: remove myvol: volume is in use - [f22c1a6695ecac0a8988046af7186d9ccf9cd9473ad7742abbb61a05104d366f, 221ea272db5b8f8465cb4317e1d299b265e9a379587dce91cd099fe4f7b67033, 3c671e6d3eae392134f300be548cb9e9b6f9fee599be464ecbd762cb69b1d7c9]
+
+```
+> volumes are pluggables so you can integrate with external, third-party storage systems using plugins and drivers.
