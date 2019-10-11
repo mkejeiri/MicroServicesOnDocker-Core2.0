@@ -1702,7 +1702,7 @@ total 48
 ```
 > We saw Docker volume command and also backing up volumes being totally independent of containers. i.e. we created, listed, inspected and then deleted two volumes without even using Docker run or Docker service create.
 
-#### Attaching Volumes to Containers
+### Attaching Volumes to Containers
 
 ```sh
 #container run, make it detached and interactive + mount flag = how we attach a volume named myvol and attached to target  = /vol  in the container
@@ -1825,3 +1825,6 @@ Error response from daemon: remove myvol: volume is in use - [f22c1a6695ecac0a89
 > All **containers** get this local graph driver (replaced in **container d** with **snapshotters**) storage, it's what stacks the image layers and adds the writeable container layer but it's bound to the container so we delete the container and the graph driver storage goes with it. **Volumes** operate outside the graph driver and have a life cycle totally independent of the container, so you can start, stop and delete containers, attach volumes to them and when it comes time to delete the container, the volume stick around with any data written to it. 
 
 > Docker volume sub command allow us to manage volumes, and thanks to the plugin architecture, volumes can exist not only on the local block storage of Docker host, but also on high-end external systems like SAN and NAS,
+
+
+### Secrets
