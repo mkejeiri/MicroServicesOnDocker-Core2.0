@@ -1800,7 +1800,7 @@ total 48
 -rw------- 1 root root 65536 oct.  11 06:03 metadata.db
 ```
 
-** same way we could also attached vol to services**  and with the same cases as for container:
+**same goes for services as for conainer**  and with the same cases as for container:
 
 ```sh 
 #to create docker volume
