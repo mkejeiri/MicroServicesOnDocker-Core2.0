@@ -143,7 +143,7 @@ Windows has ported Docker client and daemon and the same API to have the same us
 **Windows** has developed a set of interdependencies, so apps need certain systems services, DLLs, to be available, and in turn, some of those rely on others, and if they're not there, things break, and it's not different for containers. Every container needs these processes. When we start a Windows container, it gets this process called SMSS (vs linux init process).
 
 ![pic](images/figure8.PNG)
-**Native Windows containers** can only run native Win32 apps, and Hyper-V containers Windows actually spins up a lightweight Hyper-V VM in the background (less performance overhead than a full VM), but we still get a full OS, so it's not using the host's kernel, instead a separate isolated kernel, and then we run your container on that. 
+**Native Windows containers** can only run native Win32 apps, and Hyper-V containers Windows actually spins up a lightweight Hyper-V VM in the background (less performance overhead than a full VM), but we still get a full OS, so it's not using the host's kernel, instead a separate isolated kernel, and then we run our container on that. 
 **The native containers** (in linux) spins up, directly on the host, leverage its kernel, and isolation is done with Namespaces, while Hyper-V containers totally isolated kernel, and it can be Windows or Linux inside it's always one container per VM. 
  
 It becomes a deployment decision, we develop our containers in Windows, and decide wether native or Hyper-V, by running the Docker run command flag.  
@@ -162,7 +162,7 @@ these layers are unaware of the bigger image. They have no idea that they're sta
 **Pulling an image is actually a two step process**: 
 
 1 - Get the manifest is also a 2 steps 
- - get fat manifest (aka Manifest list) : list of architectures (my case: `docker system info` gives Architecture: x86_64) supported and points you to the image manifest 
+ - get fat manifest (aka Manifest list) : list of architectures (my case: `docker system info` gives Architecture: x86_64) supported and points us to the image manifest 
  - get image manifest : describes the image (e.g. ID, tag, createAt, layers and stack...), it has the hash which is the image id.
 
 2 - pull the layers. 
@@ -365,7 +365,7 @@ Images live in registries, we pull images by defaut from docker hub registry (Go
 we can totally get on premises registries as well. Docker's got its own called Docker Trusted Registry (DTR) 
 as part of Docker Enterprise edition.
 Docker Hub's got the notion of official and unofficial images (or tags). The official lives at the top level of the Hub namespace. e.g. docker.io/redis where redis is the repo name (or docker.io/nginx)... 
-within a registry, we've got repos and within repos, we've got images (aka tags). e.g. we only pull redis, Docker's added latest onto the end if you're not 
+within a registry, we've got repos and within repos, we've got images (aka tags). e.g. we only pull redis, Docker's added latest onto the end if we're not 
 explicit about the registry, it assumes Docker Hub (`docker.io`) and if you're not explicit about the image within the repo (redis or nginx), it assumes latest.
 
 The structure is a follow : ` REGISTRY/REPO/IMAGE(TAG)`
@@ -693,7 +693,7 @@ Anything that we tell "it" to run at run-time is going to overwrite the default 
 - Two types of logs:
     - daemon logs : are the logs from the Docker Daemon or the Docker engine,
 		modern Linux systems use systemd, in those instances, daemon logs get sent to journald (journalctl -u docker.service) if not check var/log/messages. On Windows check **AppData/Local/Docker**and also **Windows event viewer**.
-    - container (aka app) logs: Docker's hoping that apps log to STDOUT and STDERR. i.e. PID1 process in every container is getting captured and it's getting forwarded  we need to design the containers so the apps are running as PID1 and logging to STDOUT and STDERR, we could also logging to a file though, it is possible to do sim links and shunt rights to those files to STDOUT and STDERR; maybe mount a volume to those locations so that you can access them outside of the container and make sure they persist when the container's gone. Enterprise edition has supported the logging drivers-plugins that integrate container logging with existing logging solutions like Syslog and Gelf and Splunk,     => forward container logs to whatever external logging solution.
+    - container (aka app) logs: Docker's hoping that apps log to STDOUT and STDERR. i.e. PID1 process in every container is getting captured and it's getting forwarded  we need to design the containers so the apps are running as PID1 and logging to STDOUT and STDERR, we could also logging to a file though, it is possible to do sim links and shunt rights to those files to STDOUT and STDERR; maybe mount a volume to those locations so that we can access them outside of the container and make sure they persist when the container's gone. Enterprise edition has supported the logging drivers-plugins that integrate container logging with existing logging solutions like Syslog and Gelf and Splunk,     => forward container logs to whatever external logging solution.
 
 
 we could configure logging driver for the system via daemon.json config file. Then any new containers will start using that driver. for the occasional container logging : 
@@ -746,7 +746,7 @@ docker swarm join
 
 Every Swarm has a single leader manager with  follower managers (Raft terminology), a new manager gets cryptojoin token for managers, the cluster store's been extended to it.  issued its own client certificate which identifies it  as a Swarm member with a  manager role.  
 
-When a commands is issued at the cluster, if we hit a follower manager, it's going to proxy commands to the leader. when a leader fails, we have an election and one of the followers gets elected as a new leader (managed by Raft as in Kubernetes). It is important to connect your managers over decent, reliable networks avoid putting them cross region.  we can also have a mix of Linux and Windows running hybrid apps. 
+When a commands is issued at the cluster, if we hit a follower manager, it's going to proxy commands to the leader. when a leader fails, we have an election and one of the followers gets elected as a new leader (managed by Raft as in Kubernetes). It is important to connect our managers over decent, reliable networks avoid putting them cross region.  we can also have a mix of Linux and Windows running hybrid apps. 
 
 
 The workers do all the application work on a Swarm that's either a native Swarm work or it's Kubernetes, when we make a worker join a Swarm, it does not get access to the cluster store(only for managers), but each worker get the full list of IPs managers, if one of them dies, the workers can just talk to the others, they get their own certificates which identifies who the worker is, the Swarm that it's a member of, and what its role is: worker...
@@ -996,8 +996,8 @@ Restaring a manager is a bit of concern, docker give the possibility to lock a s
 
 
 restarting a manager, or restoring an old backup both present a couple of concerns, Docker gives us the option to lock a Swarm. It's called Autolock. At a high level, it stops restarted managers from automatically rejoining the Swarm. And then
-subsequently loading the encryption keys into memory and decrypting the Raft logs, stops you from automatically restoring an old copy of the cluster config.
-It will ask for an unlock key, Autolock is not enabled by default, you need to be explicit : 
+subsequently loading the encryption keys into memory and decrypting the Raft logs, stops us from automatically restoring an old copy of the cluster config.
+It will ask for an unlock key, Autolock is not enabled by default, we need to be explicit : 
 
 ```sh 
 #init  swarm
@@ -1015,7 +1015,7 @@ command and provide the following key:
 
     SWMKEY-1-0q/VYgCZaGug9GxupzFne3hiEfnr8vQuzj1eKEPMS/w
 
-Please remember to store this key in a password manager, since without it you
+Please remember to store this key in a password manager, since without it we
 will not be able to restart the manager.
 
 ```
@@ -1095,7 +1095,7 @@ container networking options
 
 
 
->> in Overlay networks containers could to talk to VMs or physicals out on your existing VLANs (MACVLAN transparent on Windows), every container its own IP address and MAC address on the existing network meaning containers can be visible as first-class citizens on a VLANs, no bridges and no port mapping, but it requires promiscuous mode.Clouds don't allow promiscuous mode, we could use IPVLAN which doesn't require promiscuous mode.
+>> in Overlay networks containers could to talk to VMs or physicals out on our existing VLANs (MACVLAN transparent on Windows), every container its own IP address and MAC address on the existing network meaning containers can be visible as first-class citizens on a VLANs, no bridges and no port mapping, but it requires promiscuous mode.Clouds don't allow promiscuous mode, we could use IPVLAN which doesn't require promiscuous mode.
 
 
 
@@ -1379,7 +1379,7 @@ Set of container  **networking options** are:
 >  with a single command we could create one of  **overlay networks**  (`docker network create mynetwork -o encrypted`) and then we attach containers to it. Encryption is a single command line flag; the control plane is encrypted out of the box and encrypting the data plane.
 
 
->  if containers to talk to VMs or physical host out on an existing VLANs, use MACVLAN (transparent on Windows). This gives every container its own IP address and MAC address on the existing network, i.e. containers can be visible as first-class citizens on the existing VLANs, no bridges and no port mapping, directly on the wire if you will but it requires promiscuous mode which generally not  allowed in the cloud ( use IPVLAN instead -> no promiscuous mode required).
+>  if containers to talk to VMs or physical host out on an existing VLANs, use MACVLAN (transparent on Windows). This gives every container its own IP address and MAC address on the existing network, i.e. containers can be visible as first-class citizens on the existing VLANs, no bridges and no port mapping, directly on the wire if we will but it requires promiscuous mode which generally not  allowed in the cloud ( use IPVLAN instead -> no promiscuous mode required).
 
 in **windows** run `docker network inspect nat`
 
@@ -1820,4 +1820,4 @@ docker volume rm myvol
 Error response from daemon: remove myvol: volume is in use - [f22c1a6695ecac0a8988046af7186d9ccf9cd9473ad7742abbb61a05104d366f, 221ea272db5b8f8465cb4317e1d299b265e9a379587dce91cd099fe4f7b67033, 3c671e6d3eae392134f300be548cb9e9b6f9fee599be464ecbd762cb69b1d7c9]
 
 ```
-> volumes are pluggables so you can integrate with external, third-party storage systems using plugins and drivers.
+> volumes are pluggables so we can integrate with external, third-party storage systems using plugins and drivers.
