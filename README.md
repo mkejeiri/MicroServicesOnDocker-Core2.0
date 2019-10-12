@@ -1914,14 +1914,18 @@ docker secret rm wp-secret
 docker secret ls
 ```
 
-### Stacks and Services
+### Stacks
 
-Apps are generally a collection of smaller services (granular apps) which interact together to form an even bigger app, in the Docker world, these small apps are made from containers that we run as services. Then, we group these services into stacks, and we've got a bigger app. 
+Most apps are collection of smaller services (granular apps) which works together to form a meaningful app, in the Docker world, these small apps are made from containers that we run as services. Then, we group these services into **stacks**, and we've got a bigger app. 
+
+**Stacks** work on the command line, the Universal Control Plaine (UCP) GUI and docker cloud.
 
 ![pic](images/figure25.png)
 
 
 **Stack** is just a collection of services (small running apps) that make up an app, and we define it in a compose file YAML file (i.e. compose file with a few extensions to deal with swarm objects).
+
+> A YAML spec file is at the heart self-healing, and also it defines the app and how many replicas should have... once feeded into the swarm, it get deployed by the swarm.  Swarm also manages it as well by recording the spec of each service in the cluster, and then it implements a set of background reconciliation loops that watch it, and in case of services failure, it fixes them by spinning up a new services.
 
 ![pic](images/figure26.png)
 
@@ -1938,9 +1942,107 @@ Apps are generally a collection of smaller services (granular apps) which intera
  
  - It records the **desired state** of the **app on a cluster**, as described in the **stack file**, it keeps the same *number of replicas running, which images, ...*, under the cover, the raft  is making sure that every manager's got the latest copy of app **desired state**, i.e.   **swarm** manages the app through the **background reconciliation loops**.
  
- >> e.g. node failing and taking a set of replicas with it, the **swarm** detects that change where the observed state of the cluster no longer matches the **desired state**, the swarm fix it by spin up a new service or set of services.
+ >> self-healing philosophy: in case of a node failing and taking a set of replicas with it, the **swarm** detects that change where the observed state of the cluster no longer matches the **desired state**, the swarm fix it by spin up a new service or set of services.
  
  - It deploys the app, which includes all the services, networks, and volumes and required objects. 
  
  
- >> We end up with a *self-documented, reproducible app* that fits nicely into version control.
+ >> With YAML file we end up with a *self-documented, reproducible app* for DevOps that fits nicely into version control.  
+ >> We can fork different version of YAML file depending on the Environment (Dev, Test, Prod)...
+ 
+ 
+ **Example of YAML**
+[docker-stack.yml](https://raw.githubusercontent.com/nigelpoulton/example-voting-app/master/docker-stack.yml)
+ 
+ ```sh
+ version: "3.4"
+services:
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379"
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+  db:
+    image: postgres:9.4
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+  vote:
+    image: nigelpoulton/vote:vote
+    ports:
+      - 5000:80
+    networks:
+      - frontend
+    depends_on:
+      - redis
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: on-failure
+  result:
+    image: nigelpoulton/vote:res
+    ports:
+      - 5001:80
+    networks:
+      - backend
+    depends_on:
+      - db
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  worker:
+    image: nigelpoulton/vote:wrkr
+    networks:
+      - frontend
+      - backend
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels: [APP=VOTING]
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      placement:
+        constraints: [node.role == manager]
+
+  visualizer:
+    image: nigelpoulton/vote:viz
+    ports:
+      - "8080:8080"
+    stop_grace_period: 1m30s
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  db-data:
+ 
+ ```
