@@ -1952,7 +1952,7 @@ Most apps are collection of smaller services (granular apps) which works togethe
  
  
  **Example of YAML**
-[docker-stack.yml](https://raw.githubusercontent.com/nigelpoulton/example-voting-app/master/docker-stack.yml)
+[docker-stack.yml](assets/docker-stack.yml)
  
  ```sh
  version: "3.4"
