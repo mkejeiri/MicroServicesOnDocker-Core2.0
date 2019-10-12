@@ -42,7 +42,7 @@ sudo service docker stop
 sudo usermod -aG docker <username>
 ```
 
-### Architecture and Theory
+## Architecture and Theory
 - container : Isolated area of an OS with resource usage limits applied
 ![pic](images/figure1.PNG)
 
@@ -149,7 +149,7 @@ Windows has ported Docker client and daemon and the same API to have the same us
 It becomes a deployment decision, we develop our containers in Windows, and decide wether native or Hyper-V, by running the Docker run command flag.  
 
 
-### Image
+## Image
 An image is a ready-only template for creating application containers. images are build-time constructs and containers are their run-time constructs (container = running image, image = a stopped container). An image is set of files and a manifest (i.e. JSON file explaining how it images artifacts fits together) which includes the app files and the library files required by an app to run and (ideally) just the ones it needs to run. Therefore, an image is a set of layers that are stacked on top of each others (i.e. unified file system).
 ![pic](images/figure9.PNG)
 we store images (read-only) in a registry which can be cloud or on premise. We pull them down using the docker image pull command. 
@@ -360,7 +360,7 @@ docker image rm redis
 
 an image is basically a manifest and a set of loosely coupled layers
 
-### Registries
+## Registries
 Images live in registries, we pull images by defaut from docker hub registry (Google's, Amazon also have theirs).
 we can totally get on premises registries as well. Docker's got its own called Docker Trusted Registry (DTR) 
 as part of Docker Enterprise edition.
@@ -706,7 +706,7 @@ docker run --log-driver --log-opts
 docker logs <container> [--follow]
 ```
 
-### Swarm
+## Swarm
 
 A Swarm is a secure cluster of Docker nodes (i.e. giant Docker node), we can run work against it (vs individual nodes) in Native Swarm or Kubernetes mode. It comes in two parts:
 - The **Secure cluster**: 
@@ -1073,7 +1073,7 @@ Orchestration allow us to scale out containers through automation rather than in
 They're constantly observing the cluster and any time the actual state diverges from the desired state (e.g. node's failed) Swarm and Kubernetes step in and self-heal (deploying the app or the missing nodes).
 
 
-### Network Types
+## Network Types
 
 Network Types
 Containers need to talk to each other. And guess what? Sometimes they even need to talk to VMs and
@@ -1626,7 +1626,7 @@ PING 10.0.0.6 :  56 data bytes
 
 ```
 
-### Volumes
+## Volumes
 
 
 Containers doesn't generate lasting data and they're great for immutable design patterns, there's broadly two types of data, persistent and non-persistent. Containers fit for the non-persistent where every container comes with its own non-persistent storage ( local block storage) and focus on performance and this is where the container's union file system comes into play.
@@ -1827,7 +1827,7 @@ Error response from daemon: remove myvol: volume is in use - [f22c1a6695ecac0a89
 > Docker volume sub command allow us to manage volumes, and thanks to the plugin architecture, volumes can exist not only on the local block storage of Docker host, but also on high-end external systems like SAN and NAS,
 
 
-### Secrets
+## Secrets
 
 **Secrets** are anything sensitive in our app which are infrastructure independent, e.g. passwords and certificates, names of servers and services, security related when exposed...
 Docker **Secret** is a *text blob* (string), and it's up to 500k, e.g. tells *web front-end what the password is to a back-end persistent store*.
