@@ -1923,9 +1923,9 @@ Most apps are collection of smaller services (granular apps) which works togethe
 ![pic](images/figure25.png)
 
 
-**Stack** is just a collection of services (small running apps) that make up an app, and we define it in a compose file YAML file (i.e. compose file with a few extensions to deal with swarm objects).
+**Stack** is just a collection of services (small running apps) that make up an app, and we define it in a compose file YML file (i.e. compose file with a few extensions to deal with swarm objects).
 
-> A YAML spec file is at the heart self-healing, and also it defines the app and how many replicas should have... once feeded into the swarm, it get deployed by the swarm.  Swarm also manages it as well by recording the spec of each service in the cluster, and then it implements a set of background reconciliation loops that watch it, and in case of services failure, it fixes them by spinning up a new services.
+> A YML spec file is at the heart self-healing, and also it defines the app and how many replicas should have... once feeded into the swarm, it get deployed by the swarm.  Swarm also manages it as well by recording the spec of each service in the cluster, and then it implements a set of background reconciliation loops that watch it, and in case of services failure, it fixes them by spinning up a new services.
 
 ![pic](images/figure26.png)
 
@@ -1947,30 +1947,65 @@ Most apps are collection of smaller services (granular apps) which works togethe
  - It deploys the app, which includes all the services, networks, and volumes and required objects. 
  
  
- >> With YAML file we end up with a *self-documented, reproducible app* for DevOps that fits nicely into version control.  
- >> We can fork different version of YAML file depending on the Environment (Dev, Test, Prod)...
+ >> With YML file we end up with a *self-documented, reproducible app* for DevOps that fits nicely into version control.  
+ >> We can fork different version of YML file depending on the Environment (Dev, Test, Prod)...
  
  
- **Example of YAML**
-[docker-stack.yml](assets/docker-stack.yml)
+ **Example of YML**
+  
+ At high level it defines version, services (six), networks(two) and volumes, i.e.  *redis*, *db*, *vote*, *result*, *worker*, and *visualizer* services, which use a couple of networks (*frontend and backend*), and a volume (*db-data*).
+ 
+ ```sh
+version: "3.4"
+services:
+  redis:
+  db:  
+  vote:
+  result:
+  worker:
+  visualizer:
+  
+networks:
+  frontend:
+  backend:
+
+volumes:
+  db-data: 
+ ```
+
+[detailed stak file](assets/docker-stack.yml)
+
  
  ```sh
  version: "3.4"
 services:
-
+	
+# Redis services 
   redis:
-    image: redis:alpine
+    image: redis:alpine	
+#port it listens on = just listing the container port, letting swarm map it through to a random high numbered port on the swarm.
     ports:
       - "6379"
+#attach the image to the frontend network
     networks:
       - frontend
+	  
     deploy:
-      replicas: 1
+#we're deploying 10 replicas of this service, so 10 container of this image
+      replicas: 10
+
+#rolling updates of it, we'll update two replicas at a time. 
       update_config:
         parallelism: 2
+		
+#swarm will iterate through those 10 replicas two at a time, and with a delay of 10 seconds	in between each two	 
         delay: 10s
+# restart replicas for this service, if the failure code on any of them says it failed on error
       restart_policy:
         condition: on-failure
+		
+		
+#we're using the postgres image which is using a volume (volumes) on the backend (networks)
   db:
     image: postgres:9.4
     volumes:
@@ -1978,6 +2013,7 @@ services:
     networks:
       - backend
     deploy:
+#a placement policy, i.e. just to run on manager nodes, maybe the volume's only available on managers!
       placement:
         constraints: [node.role == manager]
   vote:
@@ -2037,12 +2073,24 @@ services:
     deploy:
       placement:
         constraints: [node.role == manager]
-
+		
+#the networks and the volumes, which swarm will create for you automatically
 networks:
   frontend:
   backend:
 
 volumes:
   db-data:
- 
+
  ```
+
+**Swarm** is intelligent enough when it comes to **scheduling**: 
+
+- **Topology-aware scheduling**:  run only replicas on managers. We can do the same also  for workers. 
+ 
+- **Health-aware scheduling**  : only schedule work to nodes that it knows are healthy.
+ 
+- **H/A scheduling**:  makes sure that replicas of a particular service are not all running on the same node, in case the node goes down. 
+
+> This is our app described in a way that DevOps can read it and understand it, the cluster can store it as part of its overall desired state, and we can save it in version control.
+
