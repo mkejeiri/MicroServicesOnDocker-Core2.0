@@ -1848,20 +1848,20 @@ It works in a least-privileged fashion, only the workers that are running a repl
 
 Once the **Secret** is delivered to the node, it gets mounted inside the service task in its unencrypted form, when the service is terminated or the **Secret**'s revoked, the
 worker node is instructed to flush it from memory:
-- **Linux**:  it's a file in `/run/secrets` on temp FS volume, it's an in-memory file system, meaning at no point is the **Secret** *ever persisted to disk on the node* (only ever in memory).
+- **Linux**:  it's a file in `/run/secrets` on temp File System (FS) volume, it's an in-memory file system, meaning at no point is the **Secret** *ever persisted to disk on the node* (only ever in memory).
 - **Windows** : **Secret** get persisted to disk on the node (`C:\ProgramData\Docker\Secrets\`) because Windows doesn't do In-memory file system, so we might want to mount the Docker root directory using **BitLocker** for instance.  
  
  
-> Universal Control Plane is the Docker web UI which part of Docker Enterprise Edition (i.e. "stick your hand in your wallet" edition).
+> Universal Control Plane is the Docker web UI which part of Docker Enterprise Edition (i.e. it's a "stick your hand in your wallet" edition).
 
 
 
-**Windows example with powershell**
-> create a file secret.txt and push a password in it
+#### Windows example with powershell
+> create a file secret.txt and put a password like in it
 
 ```sh 
-#create a secret, docker client  sent the secret to the manager and securely stored in Swarm Raft
-docker secret create wp-sec-v1 .\secret.txt
+#create a secret, docker client  sent the secret to the manager and securely stored it in Swarm Raft
+docker secret create wp-secret  .\secret.txt
 
 docker secret ls
 ```
@@ -1869,7 +1869,7 @@ docker secret ls
 
 ```sh 
 # check out the  "spec" : {...}, 
-docker secret inspect  wp-sec-v1 
+docker secret inspect  wp-secret  
 ```
 > we can't see the secret here, the only way to see it is to grant a service to access to it
 > Next: we download windowsservercore and we make a PowerShell wait  `86400` second...
@@ -1877,7 +1877,7 @@ docker secret inspect  wp-sec-v1
 ```sh 
 # create a service and grant access to the secret
 docker service create -d --name my-secret-service  `
---secret wp-sec-v1  `
+--secret wp-secret   `
 microsoft/powershell:windowsservercore  `
 PowerShell Start-Sleep -s 86400
 
@@ -1885,11 +1885,11 @@ PowerShell Start-Sleep -s 86400
 
 ```sh 
 docker conainer exec -it [1st 2 digits of the image created] PowerShell
-#checkout the file  wp-sec-v1  if it mounted to  C:\ProgramData\Docker\Secrets
+#checkout the file  wp-secret   if it mounted to  C:\ProgramData\Docker\Secrets
 ps c:\> ls C:\ProgramData\Docker\Secrets
 
-#checkout unencrypted its content
-ps c:\> cat C:\ProgramData\Docker\Secrets\wp-sec-v1 
+#checkout its unencrypted content
+ps c:\> cat C:\ProgramData\Docker\Secrets\wp-secret  
 
 exit
 ```
@@ -1897,18 +1897,18 @@ exit
 >> We Can't delete a secret **in use**
 
 ```sh 
-docker secret rm wp-sec-v1 
+docker secret rm wp-secret  
 
-Error response from daemon : rpc error : code = 3 desc = secret 'wp-sec-v1' is in use by the following service : my-secret-service
+Error response from daemon : rpc error : code = 3 desc = secret 'wp-secret ' is in use by the following service : my-secret-service
 
 ```
 
-> Next: we delete my-secret-service service and wp-sec-v1 secret
+> Next: we delete my-secret-service service and wp-secret  secret
 
 ```sh 
 docker service rm my-secret-service
 docker service ls
 
-docker secret rm wp-sec-v1 
+docker secret rm wp-secret  
 docker secret ls
 ```
