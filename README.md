@@ -1872,6 +1872,7 @@ docker secret ls
 docker secret inspect  wp-secret  
 ```
 > we can't see the secret here, the only way to see it is to grant a service to access to it
+
 > Next: we download windowsservercore and we make a PowerShell wait  `86400` second...
 
 ```sh 
