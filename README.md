@@ -1085,13 +1085,13 @@ container networking options
 ![pic](images/figure19.png)	
 
 
-- **Overlay networks**: instead of isolated bridges scoped to a single host, an overlay is a single layer to network spanning multiple hosts, they are  simple to build, with single command we create an Overlay then we attach containers to it, thus containers can talk to each other as if they were side by side.The control plane, that is encrypted out of the box and encrypting the data plane with single command flag.
+- **Overlay networks**: instead of isolated bridges scoped to a single host, an overlay is a single layer to network spanning multiple hosts, they are  simple to build, with single command we create an Overlay then we attach containers to it, thus containers can talk to each other as if they were side by side.The universal control plane (UCP), that is encrypted out of the box and encrypting the data plane with single command flag.
 
 
 
 ![pic](images/figure20.png)	
 
-
+> Universal Control Plane (UCP) is the Docker web UI which part of Docker Enterprise Edition (i.e. it's a "stick your hand in your wallet" edition).
 
 
 
@@ -1376,7 +1376,7 @@ Set of container  **networking options** are:
 
 - **overlay networks** :  aka multi-host networks, instead of isolated bridges scoped to a single host, an overlay is a single layer to network spanning multiple hosts (i.e. we can directly ping all container in multi-host)
 
->  with a single command we could create one of  **overlay networks**  (`docker network create mynetwork -o encrypted`) and then we attach containers to it. Encryption is a single command line flag; the control plane is encrypted out of the box and encrypting the data plane.
+>  with a single command we could create one of  **overlay networks**  (`docker network create mynetwork -o encrypted`) and then we attach containers to it. Encryption is a single command line flag; the universal control plane (UCP) is encrypted out of the box and encrypting the data plane.
 
 
 >  if containers to talk to VMs or physical host out on an existing VLANs, use MACVLAN (transparent on Windows). This gives every container its own IP address and MAC address on the existing network, i.e. containers can be visible as first-class citizens on the existing VLANs, no bridges and no port mapping, directly on the wire if we will but it requires promiscuous mode which generally not  allowed in the cloud ( use IPVLAN instead -> no promiscuous mode required).
@@ -1837,7 +1837,7 @@ in Swarm-mode,  we can create a **Secret** which gets sent to the manager over a
 
 ![pic](images/figure23.png)
 
-Then we create a service or may be update one. In nutschell, we explicitly grant a service access to the **Secret**,  a manager (more specifically the control plane) then sends that **Secret** over a secured connection to just the nodes in the swarm that are running a replica for the service we just authorized.
+Then we create a service or may be update one. In nutschell, we explicitly grant a service access to the **Secret**,  a manager (more specifically the universal control plane or UCP) then sends that **Secret** over a secured connection to just the nodes in the swarm that are running a replica for the service we just authorized.
 
 ![pic](images/figure24.png)
 
@@ -1847,12 +1847,12 @@ It works in a least-privileged fashion, only the workers that are running a repl
 > in Swarm-mode  even if we've got standalone containers running on a node in Swarm-mode, it won't work,**Secrets** are just meant for services in multi-host or nodes.
 
 Once the **Secret** is delivered to the node, it gets mounted inside the service task in its unencrypted form, when the service is terminated or the **Secret**'s revoked, the
-worker node is instructed by the control plane to flush it from its memory:
+worker node is instructed by the universal control plane (UCP) to flush it from its memory:
 - **Linux**:  it's a file in `/run/secrets` on temp File System (FS) volume, it's an in-memory file system, meaning at no point is the **Secret** *ever persisted to disk on the node* (only ever in memory).
 - **Windows** : **Secret** get persisted to disk on the node (`C:\ProgramData\Docker\Secrets\`) because Windows doesn't do In-memory file system, so we might want to mount the Docker root directory using **BitLocker** for instance.  
  
  
-> Universal Control Plane is the Docker web UI which part of Docker Enterprise Edition (i.e. it's a "stick your hand in your wallet" edition).
+
 
 
 
@@ -1913,3 +1913,34 @@ docker service ls
 docker secret rm wp-secret  
 docker secret ls
 ```
+
+### Stacks and Services
+
+Apps are generally a collection of smaller services (granular apps) which interact together to form an even bigger app, in the Docker world, these small apps are made from containers that we run as services. Then, we group these services into stacks, and we've got a bigger app. 
+
+![pic](images/figure25.png)
+
+
+Stack is just a collection of services (small running apps) that make up an app, and we define it in a compose file YAML file (i.e. compose file with a few extensions to deal with swarm objects).
+
+![pic](images/figure26.png)
+
+- We do need to be using version three or later of the compose file spec.
+
+- It's using a compose file, we don't need to install compose as a separate tool (the old binary python).
+
+- This Stacks items are baked directly into the engine, but it needs to be in swarm mode.
+ 
+![pic](images/figure27.png)
+
+
+Stack is about swarm, we deploy it to the swarm cluster with a docker stack deploy command, and in the background, swarm does the following :
+ 
+ - It records the desired state of the app on a cluster, as described in the stack file, it keeps the same number of replicas running, which images, ... the raft under the cover is making sure that every manager's got the latest copy of app desired state, i.e.   swarm manages the app through the background reconciliation loops.
+ 
+ >> e.g. node failing and taking a set of replicas with it, the swarm detects that change and the observed state of the cluster no longer matches the desired state, the swarm fix it by spin up a new service or set of services.
+ 
+ - It deploys the app, which includes all the services, networks, and volumes and required objects. 
+ 
+ 
+ >> We end up with a self-documented, reproducible app that fits nicely into version control.
