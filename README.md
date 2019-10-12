@@ -1921,26 +1921,26 @@ Apps are generally a collection of smaller services (granular apps) which intera
 ![pic](images/figure25.png)
 
 
-Stack is just a collection of services (small running apps) that make up an app, and we define it in a compose file YAML file (i.e. compose file with a few extensions to deal with swarm objects).
+**Stack** is just a collection of services (small running apps) that make up an app, and we define it in a compose file YAML file (i.e. compose file with a few extensions to deal with swarm objects).
 
 ![pic](images/figure26.png)
 
-- We do need to be using version three or later of the compose file spec.
+- We do need to be using version "3 "or later of the compose file spec.
 
-- It's using a compose file, we don't need to install compose as a separate tool (the old binary python).
+- It's using a compose file, we don't need to install compose as a separate tool (i.e.`the old binary python`).
 
-- This Stacks items are baked directly into the engine, but it needs to be in swarm mode.
+- This **Stacks** items are baked directly into the engine, but it needs to be in swarm mode.
  
 ![pic](images/figure27.png)
 
 
-Stack is about swarm, we deploy it to the swarm cluster with a docker stack deploy command, and in the background, swarm does the following :
+**Stack** is about swarm, we deploy it to the swarm cluster with a docker stack deploy command, and in the background, **swarm** does the following :
  
- - It records the desired state of the app on a cluster, as described in the stack file, it keeps the same number of replicas running, which images, ... the raft under the cover is making sure that every manager's got the latest copy of app desired state, i.e.   swarm manages the app through the background reconciliation loops.
+ - It records the **desired state** of the **app on a cluster**, as described in the **stack file**, it keeps the same *number of replicas running, which images, ...*, under the cover, the raft  is making sure that every manager's got the latest copy of app **desired state**, i.e.   **swarm** manages the app through the **background reconciliation loops**.
  
- >> e.g. node failing and taking a set of replicas with it, the swarm detects that change and the observed state of the cluster no longer matches the desired state, the swarm fix it by spin up a new service or set of services.
+ >> e.g. node failing and taking a set of replicas with it, the **swarm**detects that change and the observed state of the cluster no longer matches the **desired state**, the swarm fix it by spin up a new service or set of services.
  
  - It deploys the app, which includes all the services, networks, and volumes and required objects. 
  
  
- >> We end up with a self-documented, reproducible app that fits nicely into version control.
+ >> We end up with a *self-documented, reproducible app* that fits nicely into version control.
