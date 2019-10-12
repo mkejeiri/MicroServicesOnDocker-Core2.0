@@ -1837,7 +1837,7 @@ in Swarm-mode,  we can create a **Secret** which gets sent to the manager over a
 
 ![pic](images/figure23.png)
 
-Then we create a service or may be update one. In nutschell, we explicitly grant a service access to the **Secret**,  a manager then sends that **Secret** over a secured connection to just the nodes in the swarm that are running a replica for the service we just authorized.
+Then we create a service or may be update one. In nutschell, we explicitly grant a service access to the **Secret**,  a manager (more specifically the control plane) then sends that **Secret** over a secured connection to just the nodes in the swarm that are running a replica for the service we just authorized.
 
 ![pic](images/figure24.png)
 
@@ -1847,7 +1847,7 @@ It works in a least-privileged fashion, only the workers that are running a repl
 > in Swarm-mode  even if we've got standalone containers running on a node in Swarm-mode, it won't work,**Secrets** are just meant for services in multi-host or nodes.
 
 Once the **Secret** is delivered to the node, it gets mounted inside the service task in its unencrypted form, when the service is terminated or the **Secret**'s revoked, the
-worker node is instructed to flush it from memory:
+worker node is instructed by the control plane to flush it from its memory:
 - **Linux**:  it's a file in `/run/secrets` on temp File System (FS) volume, it's an in-memory file system, meaning at no point is the **Secret** *ever persisted to disk on the node* (only ever in memory).
 - **Windows** : **Secret** get persisted to disk on the node (`C:\ProgramData\Docker\Secrets\`) because Windows doesn't do In-memory file system, so we might want to mount the Docker root directory using **BitLocker** for instance.  
  
