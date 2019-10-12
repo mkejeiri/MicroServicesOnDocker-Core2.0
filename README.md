@@ -1832,13 +1832,16 @@ Error response from daemon: remove myvol: volume is in use - [f22c1a6695ecac0a89
 **Secrets** are anything sensitive in our app which's infrastructure independent, e.g. passwords and certificates, names of servers and services, security related when exposed...
 Docker **Secret** is a text blob, and it's up to 500k, e.g. tells web front-end what the password is to a back-end persistent store, docker **Secret** works only in  Swarm-mode, because Swarm-mode leverages security. 
 
-in Swarm-mode  we can create a **Secret** which gets sent to the manager over a secure connection, and the manager puts it in the store where it's encrypted, then we create a service or may be update one.
-In nutschell, we explicitly grant a service access to the **Secret**,  a manager then sends that **Secret** over a secured connection to just the nodes in the swarm that are running a replica for the service we just authorized.
+in Swarm-mode  we can create a **Secret** which gets sent to the manager over a secure connection, and the manager puts it in the store where it's encrypted...
+
 ![pic](images/figure23.png)
+
+Then we create a service or may be update one. In nutschell, we explicitly grant a service access to the **Secret**,  a manager then sends that **Secret** over a secured connection to just the nodes in the swarm that are running a replica for the service we just authorized.
+
+![pic](images/figure24.png)
 
 It works in a least-privileged fashion, only the workers that are running a replica for a service explicitly granted access to the **Secret** get it. Workers not running replicas for an authorized service they can acess the **Secret** (they don't even know it exists).
 
-![pic](images/figure24.png)
 
 > in Swarm-mode  even if we've got standalone containers running on a node in Swarm-mode, it won't work,**Secrets** are just meant for services (i.e multi-host).
 
