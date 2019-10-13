@@ -2314,7 +2314,7 @@ Ports:
 
 > The desired state recorded on the cluster, the actual state currently being observed on the cluster, and our master config (YML) file stored in version control are all in sync!
 
-> If we pull the plug on one of node (i.e. one of the nodes is gone), the swarm will notice that some of our replicas are missing. So, in the background, it's spinning up more replicas on surviving nodes.	
+> If we pull the plug on one of node (i.e. one of the nodes is gone), the swarm will notice that some of our replicas are missing (background reconciliation loops). So, in the background, it's spinning up more replicas on surviving nodes.	
 
 > We've multiple services, declaratively defined in a stack file and posted to the swarm. It gets recorded by the swarm as the app's desired state, and then it gets deployed. 
 
