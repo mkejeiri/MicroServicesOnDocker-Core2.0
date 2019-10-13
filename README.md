@@ -1942,7 +1942,7 @@ Most apps are collection of smaller services (granular apps) which works togethe
  
  - It records the **desired state** of the **app on a cluster**, as described in the **stack file**, it keeps the same *number of replicas running, which images, ...*, under the cover, the raft  is making sure that every manager's got the latest copy of app **desired state**, i.e.   **swarm** manages the app through the **background reconciliation loops**.
  
- >> self-healing philosophy: in case of a node failing and taking a set of replicas with it, the **swarm** detects that change where the observed state of the cluster no longer matches the **desired state**, the swarm fix it by spin up a new service or set of services.
+ >> self-healing philosophy: in case of a node failing and taking a set of replicas with it, the **swarm** detects that change where the observed state of the cluster no longer matches the **desired state**, the swarm fix it by spinning up a new service or set of services.
  
  - It deploys the app, which includes all the services, networks, and volumes and required objects. 
  
@@ -1953,7 +1953,7 @@ Most apps are collection of smaller services (granular apps) which works togethe
  
  **Example of YML**
   
- At high level it defines version, services (six), networks(two) and volumes, i.e.  *redis*, *db*, *vote*, *result*, *worker*, and *visualizer* services, which use a couple of networks (*frontend and backend*), and a volume (*db-data*).
+ At high level it defines version "3.4", services (six), networks(two) and volumes, i.e.  *redis*, *db*, *vote*, *result*, *worker*, and *visualizer* services, which use a couple of networks (*frontend and backend*), and a volume (*db-data*).
  
  ```sh
 version: "3.4"
@@ -2086,11 +2086,237 @@ volumes:
 
 **Swarm** is intelligent enough when it comes to **scheduling**: 
 
-- **Topology-aware scheduling**:  run only replicas on managers. We can do the same also  for workers. 
+- **Topology-aware scheduling**:  run only replicas on managers. We can do the same also  for workers and this's done based on node labels... etc
  
 - **Health-aware scheduling**  : only schedule work to nodes that it knows are healthy.
  
-- **H/A scheduling**:  makes sure that replicas of a particular service are not all running on the same node, in case the node goes down. 
+- **H/A (High Availability) scheduling**:  makes sure that replicas of a particular service are not all running on the same node, in case the node goes down. 
 
 > This is our app described in a way that DevOps can read it and understand it, the cluster can store it as part of its overall desired state, and we can save it in version control.
+
+
+
+```sh
+# -c for compose
+docker stack deploy -c docker-stack.yml voter
+
+```
+> The native `docker stack deploy` subcommand implemented directly into the engine, so no need to use docker compose Python binary that we used with legacy compose. 
+
+```sh
+docker stack ls
+NAME                SERVICES            ORCHESTRATOR
+voter               6                   Swarm
+```
+
+> check out the state of the voter service
+```sh
+docker stack ps voter
+
+ID                  NAME                 IMAGE                    NODE                DESIRED STATE       CURRENT STATE            ERROR                       PORTS
+l1vkaeitykty        voter_worker.1       nigelpoulton/vote:wrkr   dev-NUC7i7BNH       Running             Running 11 seconds ago                               
+dx5tnir4xr91        voter_vote.1         nigelpoulton/vote:vote   dev-NUC7i7BNH       Running             Running 16 seconds ago                               
+xxw17c7skqrz        voter_db.1           postgres:9.4             dev-NUC7i7BNH       Running             Running 17 seconds ago                               
+0a69j7twzfx8        voter_redis.1        redis:alpine             dev-NUC7i7BNH       Running             Running 28 seconds ago                               
+qp28iptcxpwd        voter_visualizer.1   nigelpoulton/vote:viz    dev-NUC7i7BNH       Running             Running 25 seconds ago     
+jjzcwng4n7q9        voter_result.1       nigelpoulton/vote:res    dev-NUC7i7BNH       Running             Running 48 seconds ago                               
+kascl30wb455        voter_vote.2         nigelpoulton/vote:vote   dev-NUC7i7BNH       Running             Running 16 seconds ago  
+```
+
+> we get a decent view with the docker stack services command here as well
+
+```sh
+docker stack services voter
+
+ID                  NAME                MODE                REPLICAS            IMAGE                    PORTS
+1p19g2c04uc1        voter_worker        replicated          1/1                 nigelpoulton/vote:wrkr   
+7snw21bx6lav        voter_result        replicated          1/1                 nigelpoulton/vote:res    *:5001->80/tcp
+j4h5syyakoxw        voter_db            replicated          1/1                 postgres:9.4             
+juuajctjb40q        voter_redis         replicated          1/1                 redis:alpine             *:30000->6379/tcp
+rud96d4k77ma        voter_vote          replicated          2/2                 nigelpoulton/vote:vote   *:5000->80/tcp
+wpgusrqqygv3        voter_visualizer    replicated          1/1                 nigelpoulton/vote:viz    *:8080->8080/tcp
+
+```
+> e.g the front end's published externally on port 5000 (internally in port 80)
+
+scaling out front-end *voter_vote* to 20 replica, either through:
+
+- **Command line** approach :
+
+```sh
+docker service scale voter_vote=20
+
+voter_vote scaled to 20
+overall progress: 20 out of 20 tasks 
+1/20: running   [==================================================>] 
+2/20: running   [==================================================>] 
+3/20: running   [==================================================>] 
+4/20: running   [==================================================>] 
+5/20: running   [==================================================>] 
+6/20: running   [==================================================>] 
+7/20: running   [==================================================>] 
+8/20: running   [==================================================>] 
+9/20: running   [==================================================>] 
+10/20: running   [==================================================>] 
+11/20: running   [==================================================>] 
+12/20: running   [==================================================>] 
+13/20: running   [==================================================>] 
+14/20: running   [==================================================>] 
+15/20: running   [==================================================>] 
+16/20: running   [==================================================>] 
+17/20: running   [==================================================>] 
+18/20: running   [==================================================>] 
+19/20: running   [==================================================>] 
+20/20: running   [==================================================>] 
+```
+
+> Check if desired state 20, current observed state 20
+
+```sh
+docker stack services voter
+
+ID                  NAME                MODE                REPLICAS            IMAGE                    PORTS
+1p19g2c04uc1        voter_worker        replicated          1/1                 nigelpoulton/vote:wrkr   
+7snw21bx6lav        voter_result        replicated          1/1                 nigelpoulton/vote:res    *:5001->80/tcp
+j4h5syyakoxw        voter_db            replicated          1/1                 postgres:9.4             
+juuajctjb40q        voter_redis         replicated          1/1                 redis:alpine             *:30000->6379/tcp
+rud96d4k77ma        voter_vote          replicated          20/20               nigelpoulton/vote:vote   *:5000->80/tcp
+wpgusrqqygv3        voter_visualizer    replicated          1/1                 nigelpoulton/vote:viz    *:8080->8080/tcp
+```
+
+```sh
+
+#Inspect the service to see if updated-> Replicas:	20
+
+docker service inspect voter_vote --pretty
+
+ID:		rud96d4k77ma3963tyyieg92q
+Name:		voter_vote
+Labels:
+ com.docker.stack.image=nigelpoulton/vote:vote
+ com.docker.stack.namespace=voter
+Service Mode:	Replicated
+ Replicas:	20
+Placement:
+UpdateConfig:
+ Parallelism:	2
+ On failure:	pause
+ Monitoring Period: 5s
+ Max failure ratio: 0
+ Update order:      stop-first
+RollbackConfig:
+ Parallelism:	1
+ On failure:	pause
+ Monitoring Period: 5s
+ Max failure ratio: 0
+ Rollback order:    stop-first
+ContainerSpec:
+ Image:		nigelpoulton/vote:vote@sha256:c534b4bf9b5daf11f43ac01f3658a2a39c1cc1fd64d2e954f7a7dad34fbcfa38
+Resources:
+Networks: voter_frontend 
+Endpoint Mode:	vip
+Ports:
+ PublishedPort = 5000
+  Protocol = tcp
+  TargetPort = 80
+  PublishMode = ingress 
+
+```
+
+- **declarative** approach using YML Stack file : this approach is better than the imperative approach, because when we run it we will override what was implemented through the imperative approach
+open YML Stack file, go to `vote:` and put  `replicas: 10` :
+
+```sh
+...
+
+ vote:
+    image: nigelpoulton/vote:vote
+    ports:
+      - 5000:80
+    networks:
+      - frontend
+    depends_on:
+      - redis
+    deploy:
+      replicas: 10
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: on-failure
+...
+
+```
+
+> redeploy the file
+
+```sh
+docker stack deploy -c docker-stack.yml voter
+ 
+Updating service voter_result (id: 7snw21bx6lavoqum315xhdocg)
+Updating service voter_worker (id: 1p19g2c04uc1x4p7dmve0fd0n)
+Updating service voter_visualizer (id: wpgusrqqygv3htz6bwwt4pij6)
+Updating service voter_redis (id: juuajctjb40q81co6y5ryjy93)
+Updating service voter_db (id: j4h5syyakoxwu5nwcjfze7zw4)
+Updating service voter_vote (id: rud96d4k77ma3963tyyieg92q)
+```
+
+look it again and we are down to `10 replica`. (**desired state recorded in the cluster**)
+
+```sh
+docker stack services voter
+
+ID                  NAME                MODE                REPLICAS            IMAGE                    PORTS
+1p19g2c04uc1        voter_worker        replicated          1/1                 nigelpoulton/vote:wrkr   
+7snw21bx6lav        voter_result        replicated          1/1                 nigelpoulton/vote:res    *:5001->80/tcp
+j4h5syyakoxw        voter_db            replicated          1/1                 postgres:9.4             
+juuajctjb40q        voter_redis         replicated          1/1                 redis:alpine             *:30000->6379/tcp
+rud96d4k77ma        voter_vote          replicated          10/10               nigelpoulton/vote:vote   *:5000->80/tcp
+wpgusrqqygv3        voter_visualizer    replicated          1/1                 nigelpoulton/vote:viz    *:8080->8080/tcp
+```
+
+Check the service on the cluster, the `Replicas:	10` are 10! (**actual state currently being observed on the cluster**)
+
+```sh
+ docker service inspect voter_vote --pretty
+
+ID:		rud96d4k77ma3963tyyieg92q
+Name:		voter_vote
+Labels:
+ com.docker.stack.image=nigelpoulton/vote:vote
+ com.docker.stack.namespace=voter
+Service Mode:	Replicated
+ Replicas:	10
+Placement:
+UpdateConfig:
+ Parallelism:	2
+ On failure:	pause
+ Monitoring Period: 5s
+ Max failure ratio: 0
+ Update order:      stop-first
+RollbackConfig:
+ Parallelism:	1
+ On failure:	pause
+ Monitoring Period: 5s
+ Max failure ratio: 0
+ Rollback order:    stop-first
+ContainerSpec:
+ Image:		nigelpoulton/vote:vote@sha256:c534b4bf9b5daf11f43ac01f3658a2a39c1cc1fd64d2e954f7a7dad34fbcfa38
+Resources:
+Networks: voter_frontend 
+Endpoint Mode:	vip
+Ports:
+ PublishedPort = 5000
+  Protocol = tcp
+  TargetPort = 80
+  PublishMode = ingress 
+```
+
+
+> The desired state recorded on the cluster, the actual state currently being observed on the cluster, and our master config (YML) file stored in version control are all in sync!
+
+> If we pull the plug on one of node (i.e. one of the nodes is gone), the swarm will notice that some of our replicas are missing. So, in the background, it's spinning up more replicas on surviving nodes.	
+
+> We've multiple services, declaratively defined in a stack file and posted to the swarm. It gets recorded by the swarm as the app's desired state, and then it gets deployed. 
+
+> When it comes to update time, the best way to do that is the declarative way, i.e. checking the stack file out of version control, making our changes there, and reapplying it. This also can be done through the GUI or in Docker Cloud.
 
