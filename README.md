@@ -2320,3 +2320,1315 @@ Ports:
 
 > When it comes to update time, the best way to do that is the declarative way, i.e. checking the stack file out of version control, making our changes there, and reapplying it. This also can be done through the GUI or in Docker Cloud.
 
+# Kubernetes
+# Configure Kubernetes dashboard 
+
+## Create a yaml file dashboard-adminuser.yaml :
+more on  https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
+
+## Create the necessary resources
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+```
+## Get token 
+```
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | sls admin-user | ForEach-Object { $_ -Split '\s+' } | Select -First 1)
+```
+
+```
+ca.crt:     1025 bytes
+namespace:  20 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZC10b2tlbi1rbG5kdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImUxMjg4NWJiLWRlZjEtNDAxMy1iMzY2LWJjMGE1M2MzZjY0MSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDprdWJlcm5ldGVzLWRhc2hib2FyZCJ9.Bir4WEQUbGBv1BgkJd0-6RdocQfiCL9s7uc6pMw4-oTSi1O63_lL-TzOX-q2jAa8uEzZ1dwTnIDlurVll_hNJt5l_vH5NTD26EGhInFZ5in_zS5ooivI-Hf12NnX1ekOj_9lroYWXhHI4sxW0HuejazonsM5Fu7Iz1C6LIKkuj1cX9nHNqsfvgLAljqMfwzrG6RX-CsbUuLdvVjS9Ksx0uotZ-D2GE38JidP2-KRUj0iDLNA78bTwJVLAPfwmVEwmDKjvcCaC9149UXMjVzsRCan21AZab5CR1ic_wkaUul_Y_ql034do6ioegMaKKJp3ox578NHyxj4d42lw8gY_w
+```
+## Start proxy in background
+```
+start-job {kubectl proxy}
+```
+
+go to http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/##/overview?namespace=default and use the **token**
+# 
+
+
+
+# Put Profile.ps1 inside $PSHOME to use a short hand syntax like 'k' instead of 'kubectl'
+```
+Set-Alias -Name kubectl-Value kubectl -Option AllScope  -Scope Global
+
+```
+
+
+# Pods
+`#Imperative (vs declarative in YAML) or command centric creation of pods`
+```
+kubectl run nginx --image=nginx
+
+```
+`#--generator='': The name of the API generator to use, e.g. run-pod/v1 see https://kubernetes.io/docs/reference/kubectl/conventions/#generators`
+```
+kubectl  run --generator=run-pod/v1 my-nginx --image=nginx:alpine 
+```
+
+```
+kubectl get pods
+```
+
+`# a Pod get cluster IP address which not visible/exposed to outside world` 
+`# need to expose the port: e.g. 8080 to be able to go ot nginx localhost:8080`
+```
+kubectl port-forward my-nginx-6c79cbc966-2jxtb 8080:80
+```
+
+
+# Delete deployment
+delete a pod and a new one will spin off because of the desired state : need to **remove deployment!**
+
+```
+kubectl delete pod  my-nginx-6c79cbc966-chlhp
+```
+`# Need to delete deployment : `
+```
+kubectl delete deployment.apps/my-nginx
+```
+
+`#get all resources`
+```
+kubectl get all
+kubectl delete deployment.apps/my-nginx
+```
+
+`#--watch=false: After listing/getting the requested object, watch for changes`
+```
+kubectl get pods --watch 
+#OR
+kubectl get pods -w 
+
+
+kubectl get pods
+No resources found.
+```
+
+# YAML file to create a pod 
+> example Create.pod.yml next, watch out for indentation and use spaces not tabs!
+
+> labels : allows us to link resources to each others!
+
+`Create.pod.yml:`
+```
+apiVersion: v1
+kind: Pod  #map (key, value) of type pod
+metadata: # complex map (key reference other key-value or complex map)
+ name: my-nginx  #name of the pod
+ labels: #'labels' complex map which has two properties,'labels' are used to link resources. 
+  app: nginx
+  rel: stable
+ 
+spec: #the specification or a blue print for the Pod
+ containers: #list of 'containers' inside a pod, here only one container
+  - name: my-nginx  # container 'name' (item list of complex maps, i.e. list of properties)
+    image: nginx:alpine #container 'image' (this is  a property of 'name')
+    ports: # define 'ports' (this is  a property of 'name')
+    - containerPort: 80 #this is an overkill because is the default for nginx.
+                        # item of 'ports' which is a property of 'name'
+```
+
+```
+kubectl create -f Create.pod.yml --dry-run --validate=true
+kubectl create -f Create.pod.yml --validate=true
+
+kubectl create -f Create.pod.yml --validate=true #Error from server (AlreadyExists): error when creating "Create.pod.yml": pods "my-nginx" already exists
+
+```
+`#create if doesn't exist and update never fail if the POD  already exists`
+`--validate=true is the default`
+```
+kubectl apply -f Create.pod.yml --validate=true
+
+```
+`#--save-config : store current properties in resource's annotations (json fields in json format : kubectl get pod my-nginx -o json)`  
+`# Use --save-config when you want to use kubectl apply in the future`
+```
+kubectl create -f Create.pod.yml --save-config --validate=true  
+
+```
+`#those allow us to see the yaml config`
+```
+kubectl get pod my-nginx -o yaml 
+kubectl get pod my-nginx -o json
+kubectl describe pod my-nginx
+
+```
+`#get inside nginx interactively`
+```
+kubectl exec my-nginx -it sh
+
+```
+`#to edit a deployment`
+```
+kubectl edit -f Create.pod.yml
+kubectl delete -f Create.pod.yml #remove a pod by targeting yml
+kubectl delete pod my-nginx #remove a pod by pod name (no deployment it won't spin off)
+```
+
+ 
+# Probe 
+Probe is a diagnostic performed periodically by kubelet on a container (liveness Probe + Readiness Probe)
+
+## Liveness Probes
+It can be used to determine if a Pod is healthy and running as expected
+
+`It answers the question : when should a container restart?`
+
+## Readiness Probes
+It can be used to determine if a Pod should receive a requests, i.e. when we should start routing traffic to the pod
+
+`It answers the question : when should a container start receiving traffic?`
+
+### Failed containers are recreated by default (restart Policy defaults to Always)
+
+Probes can only have the following result :
+- Success
+- Failure
+- Unknown
+
+
+`Examples of pods with Probes :`
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-exec
+  labels:
+    test: liveness  
+spec:
+ containers:
+ - name: my-nginx
+   image: nginx:alpine
+   livenessProbe: #define a liveness probe
+   httpGet: #check /index.html on port 80
+    path: /index.html
+	port: 80
+   initialDelaySeconds : 15
+   timeoutSeconds : 2 #timeout after 2 sec
+   periodSeconds : 5 # check every 5 sec
+   failureThreshold : 1 #allow 1 failure before failing pod
+```  
+
+more on https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/   
+
+```   
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness
+  name: liveness-exec
+spec:
+  containers:
+  - name: liveness
+    image: k8s.gcr.io/busybox
+    args: #define args for container
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30; 
+	rm -rf /tmp/healthy; sleep 600 #rm after 30 sec 
+    livenessProbe: #define liveness Probe
+      exec:
+        command: #define an action or command to execute 
+        - cat	# run cat command
+        - /tmp/healthy # file location 
+      initialDelaySeconds: 5
+      periodSeconds: 5
+```	 
+ 
+
+- **Readiness Probe** is when should a container start receive traffic (nginx get index.html). 
+
+- **Liveness Probe**: When should a container restart because is not alive or has a health issues.
+```
+# file: https://github.com/DanWahlin/DockerAndKubernetesCourseCode/blob/master/samples/pods/nginx-readiness-probe.pod.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-nginx
+  labels:
+    app: nginx
+    rel: stable
+spec:
+  containers:
+  - name: my-nginx
+    image: nginx:alpine
+    resources:
+      limits:
+        memory: "128Mi" #128 MB
+        cpu: "200m" #200 millicpu (.2 cpu or 20% of the cpu)
+    ports:
+    - containerPort: 80
+    livenessProbe:
+      httpGet:
+        path: /index.html
+        port: 80
+      initialDelaySeconds: 15
+      timeoutSeconds: 2 # Default is 1
+      periodSeconds: 5 # Default is 10
+      failureThreshold: 1 # Default is 3
+    readinessProbe:
+      httpGet:
+        path: /index.html
+        port: 80
+      initialDelaySeconds: 3
+      periodSeconds: 5 # Default is 10
+      failureThreshold: 1 # Default is 3
+```
+
+`# kubectl exec pod-name -c container-name -it /bin/sh`
+``` 
+kubectl create -f nginx-readiness-probe.pod.yml --save-config
+kubectl exec my-nginx -it sh 
+/ # cd /usr/share/nginx/html/
+/usr/share/nginx/html # ls -l
+total 8
+-rw-r--r--    1 root     root           494 Jan 21 14:39 50x.html
+-rw-r--r--    1 root     root           612 Jan 21 14:39 index.html
+/usr/share/nginx/html # rm -f index.html
+/usr/share/nginx/html # command terminated with exit code 137
+
+kubectl describe pod/my-nginx
+Events:
+  Type     Reason     Age                  From                     Message
+  ----     ------     ----                 ----                     -------
+  Normal   Scheduled  6m41s                default-scheduler        Successfully assigned default/my-nginx to docker-desktop
+  Warning  Unhealthy  28s (x3 over 4m28s)  kubelet, docker-desktop  Liveness probe failed: HTTP probe failed with statuscode: 404
+  Normal   Killing    28s (x3 over 4m28s)  kubelet, docker-desktop  Container my-nginx failed liveness probe, will be restarted
+  Normal   Pulled     27s (x4 over 6m40s)  kubelet, docker-desktop  Container image "nginx:alpine" already present on machine
+  Normal   Created    27s (x4 over 6m40s)  kubelet, docker-desktop  Created container my-nginx
+  Normal   Started    27s (x4 over 6m40s)  kubelet, docker-desktop  Started container my-nginx
+ ```
+
+https://github.com/DanWahlin/DockerAndKubernetesCourseCode/blob/master/samples/pods/busybox-liveness-probe.pod.yml
+ ```
+ apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    test: liveness
+  name: liveness-exec
+spec:
+  containers:
+  - name: liveness
+    image: k8s.gcr.io/busybox
+    resources:
+      limits:
+        memory: "64Mi" #64 MB
+        cpu: "50m" #50 millicpu (.05 cpu or 5% of the cpu)
+    args:
+    - /bin/sh
+    - -c
+    - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
+    livenessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 5
+      periodSeconds: 5
+```
+
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+```
+kubectl create -f busybox-liveness-probe.pod.yml --save-config
+
+kubectl get pods
+NAME            READY   STATUS    RESTARTS   AGE
+liveness-exec   1/1     Running   1          112s
+my-nginx        1/1     Running   3          11m
+
+kubectl describe pod liveness-exec
+
+Events:
+  Type     Reason     Age               From                     Message
+  ----     ------     ----              ----                     -------
+  Normal   Scheduled  50s               default-scheduler        Successfully assigned default/liveness-exec to docker-desktop
+  Normal   Pulling    47s               kubelet, docker-desktop  Pulling image "k8s.gcr.io/busybox"
+  Normal   Pulled     44s               kubelet, docker-desktop  Successfully pulled image "k8s.gcr.io/busybox"
+  Normal   Created    44s               kubelet, docker-desktop  Created container liveness
+  Normal   Started    44s               kubelet, docker-desktop  Started container liveness
+  Warning  Unhealthy  3s (x3 over 13s)  kubelet, docker-desktop  Liveness probe failed: cat: can't open '/tmp/healthy': No such file or directory
+  Normal   Killing    3s                kubelet, docker-desktop  Container liveness failed liveness probe, will be restarted
+```
+
+# Deployments
+
+### ReplicaSet
+- It is a declarative way to manage Pods (like a boss of the pod, the one is dead get replaced and never comes back to life again!).
+- It acts as a Pod controller:
+  - It has a self-healing mechanism
+  - Ensure the desired state (keep the same requested number of Pods running)
+  - Provide a fault-tolerance
+  - Scale out of pods
+  - Relies on Pod template!
+  - No need to create Pods directly!
+  - Used by deployments
+
+### Deployment
+It is a declarative way to manage Pods using using a ReplicaSet under the cover. i.e. it's a higher level ReplicaSet wrapper.
+
+- In evolution of kubernetes, the ReplicaSet came before deployment and then the deployment came out and they wrapped the ReplicaSet in the deployment.
+- Depolyments and Replicaset ensure the correct numbers of Pods are running (keep the state).
+
+A deployment manages Pods:
+- using a ReplicaSet
+- Scales ReplicaSets which scale the Pods
+- Supports zero-downtime updates by creating and destroying ReplicaSets.
+- Provides rollback functionality (if someting goes wrong we could go back to the previous versions)
+- YAML is very similar to ReplicaSet
+
+
+`Example of command to run for deployment, the --show-labels: it show all deployment labels` 
+
+`We could also use the '-l' (label) to filter by label`
+```
+kubectl create -f nginx.deployment.yml --save-config
+kubectl get deployments --show-labels
+
+kubectl get deployments --show-labels
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+my-nginx   2/2     2            2           34s   app=my-nginx
+
+
+kubectl get deployment --show-labels
+kubectl get deployment --show-labels
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE   LABELS
+my-nginx   2/2     2            2           53s   app=my-nginx
+
+
+ kubectl get deployment -l app=my-nginx
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+my-nginx   2/2     2            2           83s
+
+
+kubectl scale  deployment [deployment-name]  --replicas=5
+kubectl scale   -f  nginx.deployment.yml --replicas=5
+``` 
+`Example of a deployment file with memory & CPU limits` 
+``` 
+apiVersion: apps/v1 #Kubernetes Api version
+kind: Deployment #Resource type (Deployment)
+metadata: #metadata about Deployment
+  name: my-nginx-deploy-probes #name of deployment
+  labels:
+    app: my-nginx-app #used to link resource
+
+spec: #blue print here request two replicas of the Pod
+  replicas: 2  # desired state with always 2 healthy pods
+  minReadySeconds: 10 # wait 10 sec for pod to make sure the container didn't crash!, after 10 sec if the container crash the pod will be rescheduled!
+  selector: #selector to select the template
+    matchLabels: # which matches the label describes next ('app: my-nginx-app')
+      app: my-nginx-app # this matching criteria to select the template matching the label 'app: my-nginx-app', we could put a template in separate file instead of keeping it below.
+
+  template: # this template get selected because it matches the label above  ('app: my-nginx-app')
+    metadata:
+      labels:
+        app: my-nginx-app
+    spec: # blue print which specifies the list of containers in the Pod
+      containers:
+      - name: my-nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "128Mi" #128 MB
+            cpu: "200m" #200 millicpu (.2 cpu or 20% of the cpu)
+        livenessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 2
+          timeoutSeconds: 2 # Default is 1
+          periodSeconds: 2 # Default is 10
+          failureThreshold: 1 # Default is 3
+        readinessProbe:
+         httpGet:
+           path: /index.html
+           port: 80       
+         initialDelaySeconds: 3
+         periodSeconds: 5 # Default is 10
+         failureThreshold: 1 # Default is 3
+```
+ 
+``` 
+kubectl describe deployment my-nginx-deploy
+```
+`Those commands are equivalents:`
+``` 
+kubectl get deploy   
+kubectl run nginx --image=nginxget deployment
+kubectl run nginx --image=nginx get deployments
+kubectl run nginx --image=nginx get deploy --show-labels
+```
+
+`Those commands are equivalents:`
+``` 
+kubectl run nginx --image=nginxget deploy -l app=my-nginx-app
+kubectl run nginx --image=nginxget deploy --show-labels -l app=my-nginx-app 
+``` 
+
+
+```
+kubectl get all
+NAME                                  READY   STATUS    RESTARTS   AGE
+pod/my-nginx-deploy-cffd9c7d9-rg6j6   1/1     Running   0          23h
+pod/my-nginx-deploy-cffd9c7d9-wbnj9   1/1     Running   0          23h
+
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   2d5h
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/my-nginx-deploy   2/2     2            2           23h
+
+NAME                                        DESIRED   CURRENT   READY   AGE
+replicaset.apps/my-nginx-deploy-cffd9c7d9   2         2         2       23h
+
+```
+
+
+```
+kubectl delete deploy my-nginx-deploy
+deployment.extensions "my-nginx-deploy" deleted
+
+kubectl get all
+NAME                                  READY   STATUS        RESTARTS   AGE
+pod/my-nginx-deploy-cffd9c7d9-rg6j6   0/1     Terminating   0          23h
+pod/my-nginx-deploy-cffd9c7d9-wbnj9   1/1     Terminating   0          23h
+
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   2d5h
+
+```
+
+## Zero downtime deployment
+several options to select from:
+- Rolling update (*built-in by using kubectl apply -f ...*): progressively replace one by one the old pod; by adding the new one first and get it approved and then remove the old one.
+- Blue-Green deployment : multiple environments running the same time, once the new version is approved we switch traffic to it.
+- Canary deployment: small amount of traffic goes to the new deployment, once the new deployment is approved we switch the gradually the traffic to it.   
+- Rollbacks : we tried it and it didn't work let go to the previous versions.
+
+# Services (Networking)
+
+A **service** provides a single point of entry for accessing one or more pods (to avoid using pod ip address which changes due to **scaling** and **rescheduling**). **Service** relies on labels to associate with the Pods, As the Pod lives and dies the service handles the IP addresses behind the scenes. 
+
+- Worker Nodes's **kube-proxy** creates a virtual ip address for the service.
+- Service uses **layer 4 (tcp/udp)** and it is not ephermeral as pods.
+- Service creates **endpoints** in order to access to the pods (via the service!). 
+- Service also does loadbalancing between Pods.
+
+**Types of services**:
+- ClusterIP : service IP is exposed internally with the cluster (default),and only pods within the cluster can talk to the service (doesn't allow pods to talk to other pods from different clusters)
+- NodePort : exposes the service on each Node's IP at a static port. By default, allocates a port from 30000-32767. each node proxies the allocated port.
+- LoadBalancer: provision an external IP to act as a load balancer for the service.
+- ExternalName: Maps a service to a DNS name (sort of alias to outside world), it hides the details of external world from the cluster service.
+
+## Port Forwarding
+
+Previouly we used to a Pod:
+
+`Listen on port 8080 locally and forward to a Pod`
+```
+kubectl port-forward my-nginx-6c79cbc966-2jxtb 8080:80
+```
+
+We could also do a forward to deployment:
+
+`Listen on port 8080 locally and forward to deployment's Pod`
+```
+kubectl port-forward deployment/[deployment-name] 8080:80
+```
+
+Or to a service:
+
+`Listen on port 8080 locally and forward to Service's Pod`
+```
+kubectl port-forward service/[service-name] 8080:80
+```
+
+## Service deployment
+
+Keep in mind that for the service its IP address doesn't change, but it does for Pod's.
+
+to **deploy a service** we could use:
+
+```
+kubectl create -f  file.service.yaml --save-config
+```
+and to **apply the changes**: 
+```
+kubectl apply -f  file.service.yaml 
+```
+
+to **delete a service** :
+
+```
+kubectl delete -f  file.service.yaml 
+```
+
+`ClusterIP service`
+```
+apiVersion: v1 #Kubernetes Api version
+kind: Service #Resource type (Service)
+metadata: #metadata about Service
+ name: nginx-clusterip  #name of Service  (each service gets a DNS entry within internal DNS in the Kubernetes cluster, so an external pod can call this service using name:port, i.e. no IP service memorizing)
+ labels:
+    app: my-nginx-app #used to link resource
+spec: #blue print: type of service and selector
+ type: ClusterIP # type of service
+ selector:
+    app: my-nginx #select Pod template label(s) that service will apply to, i.e. service hooks itself to any resource with that label.  e.g. Pod with label 'app: my-nginx-app'.
+ ports:
+ - name: http
+   port: 80 #the port of the service
+   targetPort: 80 #target port of the container running in the Pod   
+```
+
+`NodePort service`
+```
+apiVersion: v1 #Kubernetes Api version
+kind: Service #Resource type (Service)
+metadata: #metadata about Service
+ name: nginx-NodePort  #name of Service (each service gets a DNS entry within internal DNS in the Kubernetes cluster, so an external pod can call this service using name:port, i.e. no IP service memorizing)
+ labels:
+    app: my-nginx-app #used to link resource
+spec: #blue print: type of service and selector
+ type: NodePort # type of service
+ selector:
+    app: my-nginx #select Pod template label(s) that service will apply to, i.e. service hooks itself to any resource with that label.  e.g. Pod with label 'app: my-nginx-app'.
+ ports:
+ - name: http
+   port: 80 #the port of the service (first port used externally)
+   targetPort: 80 #target port of the container running in the Pod 
+   nodePort: 31000 # external optionally set NodePort value (defaults between 30000-32767) instead of dynamically assigned.
+```
+> when NodePort service is called on port 31000, then traffic is routed to its internal port 80 and then to container port 80. 
+
+
+`Loadbalancer service`
+```
+apiVersion: v1 #Kubernetes Api version
+kind: Service #Resource type (Service)
+metadata: #metadata about Service
+ name: nginx-load-balancer  #name of Service  (each service gets a DNS entry within internal DNS in the Kubernetes cluster, so an external pod can call this service using name:port, i.e. no IP service memorizing)
+ labels:
+    app: my-nginx-app #used to link resource
+spec: #blue print: type of service and selector
+ type: LoadBalancer # type of service
+ selector:
+    app: my-nginx-app #select Pod template label(s) that service will apply to, i.e. service hooks itself to any resource with that label, e.g. Pod with label 'app: my-nginx-app'.
+ ports:
+  - name: http
+    port: 80 # listening port of Loadbalancer service
+    targetPort: 80 #target port that the Loadbalancer service is calling into        
+  - name: https
+    port: 443
+    targetPort: 443
+```
+
+> when creating a loadbalancer service it create also localhost loopback addresses so we could use http://localhost or https://localhost, to get into the LoadBalancer service:
+```
+kubectl get svc
+NAME                  TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+nginx-load-balancer   LoadBalancer   10.97.136.206   localhost     80:32751/TCP,443:32700/TCP   2m46s
+```
+
+`ExternalName service`
+```
+apiVersion: v1 #Kubernetes Api version
+kind: Service #Resource type (Service)
+metadata: #metadata about Service
+ name: nginx-external-name  #name of Service  (each service gets a DNS entry within internal DNS in the Kubernetes cluster, so an external pod can call this service using name:port, i.e. no IP service memorizing)
+ labels:
+    app: my-nginx-app #used to link resource
+spec: #blue print: type of service and selector
+ type: ExternalName # type of service
+ externalName: api.acme.com #alias that ExternalName service is calling into 
+ ports: 
+  - name: http
+    port: 9000 # listening port of ExternalName service
+```
+
+> when Pods call the ExternalName service on port 9000, it will  poxy them to api.acme.com, if the api.acme.com chnages we need only to apply deployment of that ExternalName service.
+
+to test quickly if Pod and service are working:
+
+`use -c [containerID] in case of multiple container running in a POD`
+```
+kubectl exec [pod-name] -c [containerID] -- curl -s http://PodIP
+```
+
+To install and use curl in Alpine linux
+
+```
+kubectl exec [pod-name] -it sh
+> apk add curl
+> curl -s http://PodIP
+```
+
+The major **Role of service** is to give each running Pods an IP address, the Pods and service are joined together using labels and selectors.
+
+
+# Storage/Volume
+Volume references a storage location, each volume must have a unique name attached to pod and may or may not be tied to the Pod's lifetime (depending on the Volume type).
+
+A **Volume Mount** is used to reference a Volume by name and defines how to mount to it and defines what called a mountPath.
+
+**Volumes type Examples:**
+- **emptyDir** - Empty directory for storing "transient" data (share a Pod's lifetime) useful for sharing files between containers running in a pod.
+
+`file nginx-alpine-emptyDir.pod.yml` :
+```
+apiVersion: v1 
+kind: Pod 
+metadata:
+  name: nginx-alpine-volume
+spec:
+  volumes: 
+  - name: html-empty-volume # define intial Volume named 'html-empty-volume' that is an empty directoy (lifetime of the pod)
+    emptyDir: {} # lifecycle tied to Pod 
+  containers: # pod with two containers; one holds 'nginx' and sh 'alpine' script to update the 'index.html' 
+  - name: nginx 
+    image: nginx:alpine 
+    volumeMounts: 
+      - name: html-empty-volume  # Reference the same 'html-empty-volume' Volume (see at the top) and define a mountPath 
+        mountPath: /usr/share/nginx/html
+        readOnly: true 
+    resources:
+  - name: html-updater 
+    image: alpine 
+    command: ["/bin/sh", "-c"] 
+    args: # update file in Volume mount /html path with latest date every 10 sec
+      - while true; do date >> /html/index.html;sleep 10; done 
+    resources:
+    volumeMounts: 
+      - name: html-empty-volume # Reference the same 'html-empty-volume' Volume (see at the top) and define a mountPath 
+        mountPath: /html  
+```
+
+```
+kubectl apply -f nginx-alpine-emptyDir.pod.yml
+kubectl port-forward nginx-alpine-volume 8080:80
+```
+
+
+- **hostPath** - Pods mount into a node's filesystem, easy to set up but if node goes down we lose all data.
+
+```
+apiVersion: v1 
+kind: Pod 
+metadata:
+  name: docker-volume
+spec: 
+  volumes: 
+  - name: docker-socket #define a socket volume on host that points to /var/run/docker.sock
+    hostPath:
+      path: /var/run/docker.sock # path on a volume on our worker node
+      type: Socket # socket connection type (Unix-socket for IPC)
+  containers: 
+  - name: docker 
+    image: docker 
+    command: ["sleep"] # issue docker commands to talk to docker daemon on the host, thank to socket volume 
+    args: ["100000"] # and do some kind of operation. see https://lobster1234.github.io/2019/04/05/docker-socket-file-for-ipc/
+    volumeMounts: 
+    - name: docker-socket 
+      mountPath: /var/run/docker.sock 
+    resources:
+```
+
+`Once Pod is created we can shell into it to run Docker commands:`
+``` 
+kubectl exec [pod-name] -it sh
+```
+
+- **nfs**- An NFS (Network File System) share mounted into the Pod.
+- **configMap/Secret** - special types of volumes where we store a key/value pair and secret for more sensitive data, it provides a Pod with access to Kubernetes resources.
+
+- **Cloud** - Cluster-wide storage, storing data outside the network and claim the data outside the network.
+  - Azure - Aure Disk abf Azure File
+    ```
+      apiVersion: v1 
+      kind: Pod 
+      metadata:
+        name: my-pod
+      spec: 
+        volumes: 
+        - name: data #define intial volume named 'data' that is an Azure file storage. 
+          azureFile:
+            secretName: <azure-secret>
+            shareName: <share-name>
+            readOnly: false
+        containers: 
+        - name: someimage
+          image: my-app 
+          volumeMounts: # Reference 'data' Volume and define a mountPath
+          - name: data 
+            mountPath: /data/storage   
+    ```  
+  - AWS - Elastic Block Store
+    ```
+      apiVersion: v1 
+      kind: Pod 
+      metadata:
+        name: my-pod
+      spec: 
+        volumes: 
+        - name: data #define intial volume named 'data' that is an awsElasticBlockStore. 
+          awsElasticBlockStore:
+            volumeID: <volume-id>
+            fstype: ext4
+            readOnly: false
+        containers: 
+        - name: someimage
+          image: my-app 
+          volumeMounts: # Reference 'data' Volume and define a mountPath
+          - name: data 
+            mountPath: /data/storage
+      ```      
+  - GCP - GCE Persistent Disk 
+    ```
+      apiVersion: v1 
+      kind: Pod 
+      metadata:
+        name: my-pod
+      spec: 
+        volumes: 
+        - name: data #define intial volume named 'data' that is a gcePersistentDisk. 
+          gcePersistentDisk:
+            pdName: datastorage
+            fstype: ext4
+            readOnly: false
+        containers: 
+        - name: someimage
+          image: my-app 
+          volumeMounts: # Reference 'data' Volume and define a mountPath
+          - name: data 
+            mountPath: /data/storage
+      ```      
+
+to get a volume in a Pod
+```
+kubectl describe pod [pod-name]
+```
+or
+```
+#-o to format the output to yaml/json
+kubectl get pod [pod-name] -o yaml
+```
+
+
+- **PersistentVolume (PV)**: is cluster-wide storage unit/resource (provisioned by an administrator with a lifecycle independent from a Pod) that relies on storage provider such as NFS, cloud or network-attached storage (NAS).
+in order to use it we use PersistentVolumeClaim.
+  - **PersistentVolumeClaim (PVC)** - Provides Pods with a more persitent storage option that is abstracted from the details, the Pods use that claim to read/write from the volume. A PVC is a request for a specific storage unit (PV).
+    - 1) Create a network storage resource (NFS, cloud, etc,..)
+    - 2) Define a Persistent Volume (PV) registered through the kubernetes API
+    - 3) Create a PVC in order to use the PV
+    - 4) Kubernetes binds the PVC to the PV
+    - 5) in Pod/deployment template or nay other suitable type of resource we bind to the PVC.
+
+> Pod only knows the PVC and magically we get a volume whether in NAS, NFS or cloud.
+
+`example of PV`
+```
+apiVersion: v1
+kind: PersistentVolume # Create a PV kind
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 10Gi #define a storage capacity
+  accessModes: 
+    - ReadWriteOnce # One client can mount for read/write
+    - ReadOnlyMany # Many clients can mount for reading
+  persistentVolumeReclaimPolicy: Retain # Retain even after claim is deleted (not erased/deleted)
+  azureFile: # reference storage to use (specific to Cloud provider , NFS setup, etc...)
+    secretName: <azure-secret>
+    shareName: <name_from_azure>
+    readOnly: false
+```
+  
+`example of PVC`
+```
+kind: PersistentVolumeClaim #define a PVC
+apiVersion: v1
+metadata:
+  name: pv-dd-account-hdd-5g
+  # Set this annotation to NOT let Kubernetes automatically create
+  # a persistent volume for this volume claim.
+  annotations:
+    volume.beta.kubernetes.io/storage-class: accounthdd
+spec:
+  accessModes:
+    - ReadWriteOnce #define access modes
+  resources:
+    requests:
+      storage: 5Gi #request storage amount
+```
+
+`example of referecing a PVC inside the Pod`
+```
+apiVersion: v1
+kind: Pod
+metadata:
+ name: pod-uses-account-hdd-5g
+ labels: pod-uses-account-hdd-5g
+   name: storage  
+spec:
+ containers:
+  - image: nginx
+    name: az-c-01
+    command:
+    - /bin/sh
+    - -c
+    - while true; do echo $(date) >>
+      /mnt/blobdisk/outfile; sleep1; done
+    volumeMounts: #mount to volume
+    - name: blobdisk01
+      mountPath: /mnt/blobdisk
+ 
+ volumes:            #create volume that binds to PersistentVolumeClaim
+  - name: blobdisk01
+    PersistentVolumeClaim:
+      claimName: pv-dd-account-hdd-5g
+```
+
+**StorageClasses**
+a StorageClass (SC) is a type of storage template that can be dynamically combined with a provision storage.
+We discussed previouly a static way to create a volume, while here we defined on-the-fly to create volume.
+
+- 1) Create StorageClass 
+- 2) Create a PVC that references StorageClass
+- 3) Kubernetes uses StorageClass provionner to provision a PV.
+- 4) Storage provisioned, PV created and bouned to PVC.  
+ 
+
+`Example of Creating a StorageClass`
+
+```
+apiVersion: storage.k8s.io/v1 #APi version
+kind: StorageClass # StorageClass resource
+metadata:
+  name: local-storage
+  
+reclaimPolicy: Retain # Retain storage once the PVC is released (the default is delete)
+provisioner: kubernetes.io/no-provisioner  # speicify Provisionner, or volume plugin which will be used to create the PV resource,
+                                           # although here PV is not dynamically provisioned, I have to create it my self.
+volumeBindingMode: WaitForFirstConsumer # wait to create until Pod making PVC is created. Default is immediate (create once PVC is created)
+```
+
+
+`Example of no-provisioner PersistentVolume (vs dynamic) referenced to StorageClass`
+`we use 'local-storage' StorageClass in a PV, without a dynamic provisionner this will be a localStorage that write to worker node`
+```
+apiVersion: v1
+kind: PersistentVolume # Create a PV kind
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 10Gi #define a storage capacity
+  volumeMode: Block
+  accessModes: 
+    - ReadWriteOnce # One client can mount for read/write
+    - ReadOnlyMany # Many clients can mount for reading
+    
+  storageClassName: local-storage # name of storageClass StorageClass
+  local: #Reference storageClass from previous example of  
+    path: /data/storage #Path info where data is stored on the worker Node   
+  
+  nodeAffinity: # describe the node where would like to write to in case of multiple worker nodes.
+    required:
+      nodeSelectorTerms: #select the Node where the local storage PV is created
+      - matchExpressions:
+        - key: kubernetes.io/hostname # kubernetes hostname should know about which hostname out there?
+          operator: In # if one of the host is docker-desktop than that is where this storage will be set up, 
+                       # it's way to lock in a volume to a specific worker node based on the value.
+          values: #list of nodes we would like to write too.
+          - docker-desktop
+```
+
+`Example of no-provisioner PersistentVolumeClaim`
+```
+apiVersion: v1
+kind: PersistentVolumeClaim #define a PVC
+metadata:
+  name: my-pvc
+spec:
+  accessModes: #define access modes and storage classification that PV needs to support. 
+    - ReadWriteOnce 
+    
+  storageClassName: local-storage # name of storageClass, 
+                                  # any time is used it will reference the template which set the PV dynamically but here we set the PV manually. 
+  resources:
+    requests:
+      storage: 1 Gi #request storage amount
+```
+
+# Storage/ConfigMaps
+
+ConfigMaps provides a way to store configuration information and provide/inject it to/into containers, different options are available:
+- Store in a File: Key is the filename, value is the file contents (can be JSON, XML, keys/values, etc.).
+- Provide on the command-line
+- ConfigMap manifest
+
+## Accessing ConfigMap data in a Pod
+ConfigMaps can be accessed from a Pod using:
+- Environment variables (key/value)
+- ConfigMap Volume (access as files)
+
+1.  Example of ConfigMap : file settings.configmap.yml
+
+```
+apiVersion: v1
+kind: ConfigMap #define a ConfigMap resource
+metadata:
+  name: app-settings # name of ConfigMap
+  labels:
+    app: app-settings
+data:    #ConfigMap data
+  enemies: aliens
+  lives: "3"
+  enemies.cheat: "true"
+  enemies.cheat.level: noGoodRotten
+```
+
+ Using a k8s ConfigMap manifest:  
+ ```
+ kubectl create -f settings.configmap.yml
+ ```
+
+2.  Load settings from a file: config settings.properties file with key/value pair:
+
+```
+enemies=aliens
+lives=3
+enemies.cheat=true
+enemies.cheat.level=noGoodRotten
+```
+
+`Load settings from a file:`
+```
+kubectl create cm app-settings --from-file=settings.properties
+```
+this Will add file name as key into ConfigMap data. Will NOT add quotes around non-string values.
+```
+apiVersion: v1
+kind: ConfigMap #define a ConfigMap resource
+metadata:
+  name: app-settings # name of ConfigMap
+  labels:
+    app: app-settings
+data:    #ConfigMap data added from settings.properties file
+  settings.properties: |-
+    enemies=aliens
+    lives=3
+    enemies.cheat=true
+    enemies.cheat.level=noGoodRotten
+```
+
+3. Load settings from an env file:
+
+`file game-config.env` 
+```
+enemies=aliens
+lives=3
+enemies.cheat=true
+enemies.cheat.level=noGoodRotten
+```
+
+```
+kubectl create cm app-settings --from-env-file=game-config.env
+```
+
+this  Will NOT add file name as key into ConfigMap data. Will add quotes around non-string values.
+
+
+```
+apiVersion: v1
+kind: ConfigMap #define a ConfigMap resource
+metadata:
+  name: app-settings # name of ConfigMap
+  labels:
+    app: app-settings
+data:  #ConfigMap data added from  game-config.env file
+  enemies=aliens
+  lives=3
+  enemies.cheat=true
+  enemies.cheat.level=noGoodRotten
+```
+
+
+4. Create a ConfigMap from individual data values or literals:
+
+ ```
+ kubectl create cm app-settings --from-literal=enemies=aliens --from-literal=lives=3 --from-literal=enemies.cheat=true --from-literal=enemies.cheat.level=noGoodRotten 
+ ```
+ This Will add quotes around non-string values.
+
+```
+apiVersion: v1
+kind: ConfigMap #define a ConfigMap resource
+metadata:
+  name: app-settings # name of ConfigMap
+  labels:
+    app: app-settings
+data:  #ConfigMap data added from literals
+  enemies=aliens
+  lives="3"
+  enemies.cheat="true"
+  enemies.cheat.level=noGoodRotten
+```
+
+### get a ConfigMap
+```
+kubectl get cm [cm-name] -o yaml
+kubectl get cm [cm-name] -o json
+```
+
+
+### Accessing a ConfigMap through Enviroment variables
+
+Pods can access ConfigMaps values through environment vars ENEMIES enviroment variable created (value=aliens)
+
+
+```
+apiVersion: v1
+kind: ConfigMap #define a ConfigMap resource
+metadata:
+  name: app-settings # name of ConfigMap
+  labels:
+    app: app-settings
+data:    #ConfigMap data
+  enemies: aliens
+  lives: "3"
+  enemies.cheat: "true"
+  enemies.cheat.level: noGoodRotten
+```
+
+#### how to get a value from ConfigMap ?
+
+1. valueFrom
+
+```
+apiVersion: v1
+...
+spec:
+  template:
+  ...
+  spec: 
+   containers: ...
+   env:
+   - name: ENEMIES
+     valueFrom:
+       ConfigMapKeyRef:
+         key: app-settings
+         name: enemies
+```
+
+2. envFrom : ENV variable app-settings created for all data keys
+
+```
+apiVersion: v1
+...
+spec:
+  template:
+  ...
+  spec: 
+   containers: ...
+   envFrom:
+   - ConfigMapRef:
+     name: app-settings
+```
+
+### Accessing a ConfigMap through volume
+
+ConfigMap values can be loaded through a volume, each key is converted into a file - value is added into the file.
+
+```
+apiVersion: v1
+...
+spec:
+  template:
+  ...
+  spec:
+    volume:
+      - name: app-config-vol
+        configMap:
+          name: app-settings
+
+    containers:
+      volumeMounts:
+        - name: app-config-vol
+          mountPath: /etc/config   
+```
+
+> when a configMap value is update the volume file is also updated, make sure that app read the newly updated value, this change could take 60 sec to make way to container.
+
+
+# Storage/Secrets
+A **secret** is an object that contains a small amount of sensitive data such as a password, a token, a key or even a certificate.
+It avoids storing secrets in container images, in files, or in deployment manifests that can easily comprise.
+- we can mount secrets into pods as files which involve volume. 
+- Or we can use environment variables.
+
+> Kubernetes only make secrets available to nodes that have a pod requesting the secret. Nodes that don't need secret don't have those have that information  which reduce the surface attack.
+> Secrets are stored in tmpfs on Node (not on disk).
+
+[Best Practices](https://kubernetes.io/docs/concepts/configuration/secret/#best-practices):
+- Encypt the secrets or [enable encryption](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/) at rest for cluster data.  
+- Limit access to etcd(where secret are stored) ot only admin users.
+- use SSL/TLS for etcd peer-to-peer communication.
+- While we can create a secret manifest file(YAML/JSON) and before it gets into kubernetes the data is only base64 encoded.
+- Pods can access secrets, so we need to secure which users can create Pods. i.e. Role-Based Access Control (RBAC) can be used.
+
+## Creating a secret
+
+- **Through a commands**
+  1. **Literals** : Create a secret and store securely in kubernetes
+  ```
+  kubectl  create secret generic my-secret --from-literal=pwd=my-password
+  ```
+  2. Create a secret from a **File**:
+
+  ```
+  kubectl create secret generic my-secret --from-file=ssh-privatekey=~/.ssh/id_rsa --from-file=ssh-publickey=~/.ssh/id_rsa.pub
+  ```
+
+  3. Create a secret from **TLS** certificate (or key pair):
+  ```
+  kubectl create secret tls tls-secret --cert=path/to/tls.cert --key=path/to/tls.key
+  ```
+
+
+- **Through a YML file**
+ We can decratively define secrets using YAML, but any secret data is only base64 encoded in the manifest file. Normally this avaible only to admin not source sharing among other users!
+
+```
+# secrets.yml file
+
+apiVersion: v1
+kind: Secret # define a secret
+metadata: 
+  name: db-passwords # Secret name
+type: Opaque
+data: # key/values for Secret
+  db-password: cFzmpsgrµ=
+  admin-password: cdvnm%iufs
+```
+```
+kubectl create -f secrets.yml
+# or
+kubectl apply -f secrets.yml
+```
+
+## Get a secret
+
+```
+kubectl get secrets
+```
+or get a specific secret by name
+
+```
+kubectl get secrets db-password -o yaml
+```
+
+
+## Accessing a secret : environment vars
+
+Pods can access Secret values through environment vars APP_PASSWORD environment var created. 
+
+```
+# secrets.yml file
+
+apiVersion: v1
+kind: Secret # define a secret
+metadata: 
+  name: db-passwords # Secret name
+type: Opaque
+data: # key/values for Secret
+  app-password: cFzmpsgrµ=
+  admin-password: cdvnm%iufs
+```
+
+
+```
+# using the previous secrets.yml file
+apiVersion: v1
+...
+spec:
+  template:
+  ...
+  spec: 
+   containers: ...
+   env:
+   - name: APP_PASSWORD
+     valueFrom:
+       secretKeyRef:         
+         name: db-passwords
+         key: app-password
+```
+
+> The data from secrets.yml file get decoded and assigned to APP_PASSWORD.
+
+
+
+## Accessing a secret : volumes
+Pods can access Secret values through volume where each key is converted into a file - value is added into the file.
+
+```
+# secrets.yml file
+
+apiVersion: v1
+kind: Secret # define a secret
+metadata: 
+  name: database-passwords # Secret name
+type: Opaque
+data: # key/values for Secret
+  db-password: cFzmpsgrµ=
+  admin-password: cdvnm%iufs
+```
+
+```
+# using the previous secrets.yml file
+apiVersion: v1
+...
+spec:
+  volumes:
+  - name: secrets-volume
+    secret:
+      secretName: database-passwords
+   containers:
+   volumeMounts:
+   - name: secrets-volume
+     mounthPath: /etc/db-password
+     readOnly: true
+```
+
+# Troubleshoot
+
+```
+# view the logs for a Pod's container
+kubectl logs [pod-name]
+```
+
+```
+# view the logs for a specific container within a Pod
+kubectl logs [pod-name] -c [container-name]
+```
+
+
+```
+# view the logs for a previously running Pod's 
+kubectl logs -p [pod-name]
+```
+
+```
+# stream a Pod's logs
+kubectl logs -f [pod-name]
+```
+
